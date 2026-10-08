@@ -343,7 +343,7 @@
   var PAGES = [["index.html", "홈", "home"], ["skilltree.html", "스킬트리", "tree"],
                ["drill.html", "훈련", "drill"], ["settings.html", "설정", "set"]];
   /* 회계학이 있는 시험은 「계정」 탭(계정 자리·재무제표 조립·분개)을 훈련 뒤에 넣는다 */
-  if (["cpa", "semusa", "gwanse"].indexOf((P.exam || "")) >= 0) PAGES.splice(3, 0, ["acct.html", "계정", "acct"]);
+  if (["cpa", "semusa", "gwanse", "nomusa"].indexOf((P.exam || "")) >= 0) PAGES.splice(3, 0, ["acct.html", "계정", "acct"]);
   function mountNav(here) {
     /* 처음 온 사람은 첫 설정으로 — 검사기(webdriver)는 보내지 않는다 */
     if (!onboarded() && here !== "start.html" && !navigator.webdriver && !/[?&]nostart/.test(location.search)) {
