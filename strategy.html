@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>합격 전략 — 모두의 전문직</title>
+<link rel="icon" href="icons/favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<script>try{document.documentElement.dataset.skin=localStorage.getItem("mp.skin")||"white"}catch(e){document.documentElement.dataset.skin="white"}</script>
+<link rel="stylesheet" href="css/app.css">
+<style>
+  .hd{padding:22px 0 4px}
+  .hd h1{font-size:26px}
+  .ex{display:flex;gap:6px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+  .ex::-webkit-scrollbar{display:none}
+  .ex button{flex:none;font-size:15px;font-weight:800;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .ex button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .box{margin-top:14px;padding:20px;border:1.5px solid var(--ink);border-radius:var(--r3);background:var(--surface)}
+  .box .k{font-size:14px;font-weight:800;color:var(--ink-3)}
+  .box .big{font-size:40px;font-weight:900;letter-spacing:-.05em;line-height:1.1;margin:4px 0}
+  .box .big small{font-size:16px;color:var(--ink-3);margin-left:6px;letter-spacing:-.02em}
+  .tag{display:inline-block;font-size:13px;font-weight:900;padding:4px 10px;border-radius:99px;margin-left:6px;vertical-align:4px}
+  .tag.rel{background:var(--cta);color:#fff}
+  .tag.abs{background:var(--surface-3);color:var(--ink-2)}
+  .rule{font-size:15px;color:var(--ink-2);margin-top:8px}
+  h2{font-size:19px;margin:28px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--ink-3);font-weight:800;font-size:13px}
+  td.num{white-space:nowrap}
+  td.src{font-size:12px;color:var(--ink-4);text-align:left}
+  .lines{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:15.5px}
+  .sub{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:var(--r3);background:var(--surface)}
+  .sub h3{font-size:17px;display:flex;justify-content:space-between;align-items:baseline}
+  .sub h3 span{font-size:13px;color:var(--ink-3);font-weight:800}
+  .cov{display:flex;height:14px;border-radius:99px;overflow:hidden;margin:10px 0 6px;background:var(--lv0)}
+  .cov i{display:block;height:100%}
+  .cov .S{background:var(--lv3)} .cov .A{background:var(--lv2)} .cov .B{background:var(--lv1)}
+  .need{font-size:14.5px;color:var(--ink-2)}
+  .need b{color:var(--cta)}
+  .nodes{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+  .nodes a{display:flex;gap:10px;align-items:center;text-decoration:none;padding:6px 8px;border-radius:var(--r1);font-size:14.5px}
+  .nodes a:hover{background:var(--surface-2)}
+  .nodes .g{flex:none;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:900}
+  .g.S{background:var(--lv3);color:#fff} .g.A{background:var(--lv2);color:#fff} .g.B{background:var(--lv1);color:var(--ink)} .g.C{background:var(--lv0);color:var(--ink-3)}
+  .nodes .p{margin-left:auto;font-size:12.5px;color:var(--ink-4);font-weight:800;white-space:nowrap}
+  .wait{font-size:14.5px;color:var(--ink-3)}
+  .calc{font-size:14px;color:var(--ink-3);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hd"><h1>합격 전략</h1></div>
+  <div class="ex" id="ex"></div>
+  <div id="main"></div>
+</div>
+<script src="js/catalog.js"></script>
+<script src="data/ready.js"></script>
+<script src="js/boot.js"></script>
+<script src="js/store.js"></script>
+<script src="js/strategy-data.js"></script>
+<script>
+(function () {
+  "use strict";
+  GB.mountNav("strategy.html");
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = GB.esc, C = CATALOG, R = window.READY || {};
+  var cur = new URLSearchParams(location.search).get("e") || GB.exam().id;
+  if (!C.exam(cur)) cur = C.EXAMS[0].id;
+  /* 기출 쟁점을 다 맞히고(정답률 90%) 나머지는 찍는다(5지선다 20%)고 볼 때, 목표 점수에 필요한 기출 범위 */
+  function needCover(t) { return Math.min(1, Math.max(0, (t / 100 - 0.2) / 0.7)); }
+  function expect(c) { return Math.round((0.9 * c + 0.2 * (1 - c)) * 100); }
+  function target(st) {
+    if (st.pass === "abs") return 65;
+    var c = st.cut.slice().sort(function (a, b) { return b[0] - a[0]; }).slice(0, 3);
+    return c.length ? Math.ceil(Math.max.apply(null, c.map(function (x) { return x[2]; })) + 3) : null;
+  }
+  function draw() {
+    $("ex").innerHTML = C.EXAMS.map(function (e) { return '<button type="button" data-e="' + e.id + '"' + (e.id === cur ? ' class="on"' : "") + ">" + e.name + "</button>"; }).join("");
+    $("ex").querySelectorAll("button").forEach(function (b) { b.onclick = function () { cur = b.dataset.e; history.replaceState(null, "", "?e=" + cur); draw(); }; });
+    var e = C.exam(cur), st = window.STRAT[cur], t = target(st);
+    var h = '<div class="box"><div class="k">' + esc(e.name) + " " + esc(e.sub) + ' 목표 평균<span class="tag ' + st.pass + '">' + (st.pass === "rel" ? "상대평가" : "절대평가") + "</span></div>" +
+      '<div class="big num">' + (t ? t + "<small>점 이상</small>" : '<small style="margin:0">합격선 자료 모으는 중</small>') + "</div>" +
+      '<div class="rule">' + esc(st.rule) + "</div>" +
+      (t ? '<div class="calc">' + (st.pass === "rel" ? "최근 합격선 중 가장 높은 점수 + 3점." : "합격 기준 60점에 실수 여유 5점.") +
+        " 이 점수를 내려면 기출 쟁점의 " + Math.round(needCover(t) * 100) + "%를 확실히 맞혀야 한다(나머지는 찍어서 20%로 계산).</div>" : "") + "</div>";
+    if (st.cut.length) {
+      h += "<h2>최근 합격선</h2><table><tr><th>연도(회)</th><th>평균</th><th>응시</th><th>합격</th><th>출처</th></tr>" +
+        st.cut.slice().sort(function (a, b) { return b[0] - a[0]; }).map(function (c) {
+          return "<tr><td>" + c[0] + " (" + c[1] + '회)</td><td class="num">' + c[2].toFixed(1) + '</td><td class="num">' + (c[3] ? c[3].toLocaleString() : "—") +
+            '</td><td class="num">' + (c[4] ? c[4].toLocaleString() : "—") + '</td><td class="src">' + esc(c[5]) + "</td></tr>";
+        }).join("") + "</table>";
+    }
+    h += "<h2>이 시험 공부 순서</h2><ul class=\"lines\">" + st.lines.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>";
+    h += '<h2>과목별 쟁점 등급</h2><p class="wait" style="margin:0 0 4px">기출에 나온 양으로 S(상위 40%) · A(70%까지) · B(90%까지) · C. 쟁점을 누르면 그 쟁점 O·X로 간다.</p><div id="subs"></div>';
+    $("main").innerHTML = h;
+    var subs = e.series ? e.series[0].subs.concat([].concat.apply([], e.series.slice(1).map(function (s) { return s.subs; }))).filter(function (x, i, a) { return a.indexOf(x) === i; }) : e.subs;
+    var box = $("subs");
+    subs.forEach(function (sid) {
+      var d = document.createElement("div"); d.className = "sub"; box.appendChild(d);
+      if (!R[sid]) { d.innerHTML = "<h3>" + esc(C.name(sid)) + '<span>기출 정리 중</span></h3>'; return; }
+      d.innerHTML = "<h3>" + esc(C.name(sid)) + '<span>불러오는 중</span></h3>';
+      /* 과목 자료는 window.TREE 를 덮어쓰므로 iframe 없이 텍스트로 받아 TREE 만 꺼낸다 */
+      fetch("data/" + sid + ".js?v=" + (R[sid].v || "")).then(function (r) { return r.text(); }).then(function (s) {
+        var m = s.match(/window\.TREE=(\{[\s\S]*?\});\s*window\./), T = JSON.parse(m[1]);
+        var ns = T.nodes.slice().sort(function (a, b) { return b.q - a.q; }), tot = ns.reduce(function (x, n) { return x + n.q; }, 0), acc = 0, share = { S: 0, A: 0, B: 0, C: 0 };
+        ns.forEach(function (n) { var before = acc / tot; acc += n.q; n.g = before < 0.4 ? "S" : before < 0.7 ? "A" : before < 0.9 ? "B" : "C"; share[n.g] += n.q / tot; });
+        var tt = t || 60, need = needCover(tt), upto = need <= share.S ? "S" : need <= share.S + share.A ? "S·A" : need <= share.S + share.A + share.B ? "S·A·B" : "전부";
+        d.innerHTML = "<h3>" + esc(T.subject) + "<span>쟁점 " + ns.length + " · 기출 문장 " + tot.toLocaleString() + "</span></h3>" +
+          '<div class="cov"><i class="S" style="width:' + share.S * 100 + '%"></i><i class="A" style="width:' + share.A * 100 + '%"></i><i class="B" style="width:' + share.B * 100 + '%"></i></div>' +
+          '<div class="need">목표 ' + tt + "점 → <b>" + upto + "</b> 쟁점까지 (S·A만 끝내면 예상 " + expect(share.S + share.A) + "점)</div>" +
+          '<div class="nodes">' + ns.filter(function (n) { return n.g !== "C"; }).map(function (n) {
+            return '<a href="ox.html?s=' + sid + "&node=" + n.no + '"><span class="g ' + n.g + '">' + n.g + "</span><span>" + esc(n.name) + '</span><span class="p">' + Math.round(n.q / tot * 100) + "%</span></a>";
+          }).join("") + "</div>";
+      }).catch(function () { d.innerHTML = "<h3>" + esc(C.name(sid)) + "<span>자료를 못 읽음</span></h3>"; });
+    });
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

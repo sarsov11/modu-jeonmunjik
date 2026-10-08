@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>계정 훈련 — 모두의 전문직</title>
+<link rel="icon" href="icons/favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<script>try{document.documentElement.dataset.skin=localStorage.getItem("mp.skin")||"white"}catch(e){document.documentElement.dataset.skin="white"}</script>
+<link rel="stylesheet" href="css/app.css">
+<style>
+  .hd{padding:22px 0 4px}
+  .hd h1{font-size:26px}
+  .hd p{color:var(--ink-3);margin:4px 0 0;font-size:15px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:none;font-size:15px;font-weight:800;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line-2);
+    background:var(--surface);color:var(--ink-2);cursor:pointer}
+  .tabs button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .meta{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--ink-3);margin:14px 0 8px}
+  .meta b{color:var(--ink)}
+  .q{margin-top:6px;padding:26px 20px;border:1.5px solid var(--ink);border-radius:var(--r3);background:var(--surface);text-align:center}
+  .q .nm{font-size:27px;font-weight:900;letter-spacing:-.05em;line-height:1.25}
+  .q .sub{font-size:14px;color:var(--ink-3);margin-top:6px}
+  .q.txt{text-align:left}
+  .q.txt .nm{font-size:19px;font-weight:800;letter-spacing:-.03em;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+  .grid.g3{grid-template-columns:repeat(3,1fr)}
+  .grid button{font-size:16px;font-weight:800;padding:15px 8px;border-radius:var(--r2);border:1.5px solid var(--line-2);
+    background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.3}
+  .grid button small{display:block;font-size:12px;font-weight:700;color:var(--ink-4);margin-top:2px}
+  .grid button:hover{border-color:var(--ink-4)}
+  .grid button.ok{border-color:var(--ok);background:var(--ok-soft)}
+  .grid button.no{border-color:var(--no);background:var(--no-soft)}
+  .grid button:disabled{cursor:default}
+  .crumb{font-size:14px;color:var(--ink-3);margin-top:12px;font-weight:700}
+  .crumb button{border:0;background:none;color:var(--cta);font-weight:800;cursor:pointer;padding:0 0 0 6px;font-size:14px}
+  .fb{margin-top:12px;padding:16px;border-radius:var(--r3);background:var(--surface-2);font-size:15.5px;line-height:1.65}
+  .fb .v{font-weight:900;font-size:17px;margin-bottom:4px}
+  .fb .v.ok{color:var(--ok)} .fb .v.no{color:var(--no)}
+  .fb .kv{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+  .fb .kv span{font-size:13px;font-weight:800;padding:3px 10px;border-radius:99px;background:var(--surface);border:1px solid var(--line)}
+  .next{margin-top:12px}
+  /* 분개 */
+  .pool{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pool button{font-size:15px;font-weight:800;padding:10px 12px;border-radius:var(--r2);border:1.5px solid var(--line-2);
+    background:var(--surface);color:var(--ink);cursor:pointer}
+  .pool button[data-s="d"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+  .pool button[data-s="c"]{border-color:var(--cta);background:var(--cta);color:#fff}
+  .pool button.miss{outline:2px dashed var(--no);outline-offset:2px}
+  .legend{display:flex;gap:14px;font-size:13px;color:var(--ink-3);margin-top:10px;font-weight:700}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+  .tf{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--ink);border-radius:var(--r2);overflow:hidden;margin-top:12px;font-size:15px}
+  .tf>div{padding:10px 12px}
+  .tf>div:first-child{border-right:1.5px solid var(--ink)}
+  .tf h4{margin:0 0 6px;font-size:13px;color:var(--ink-3)}
+  .tf p{margin:2px 0;display:flex;justify-content:space-between;gap:8px}
+  .tf p b{font-weight:800}
+  /* 재무제표 조립 */
+  .tray{display:flex;flex-wrap:wrap;gap:6px;padding:12px;border:1.5px dashed var(--line-3);border-radius:var(--r3);min-height:56px;margin-top:10px;
+    background:var(--bg)}
+  .picker{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--surface);border-top:2px solid var(--ink);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -12px 30px -18px rgba(0,0,0,.35)}
+  .picker .in{max-width:760px;margin:0 auto}
+  .picker .pt{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;margin-bottom:8px}
+  .picker .pt button{border:0;background:none;font-size:14px;color:var(--ink-3);font-weight:800;cursor:pointer}
+  .picker .pg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .picker .pg button{font-size:13.5px;font-weight:800;padding:10px 4px;border-radius:var(--r1);border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.25}
+  .picker .pg button.A{border-color:var(--line-3)}
+  .picker .pg button.L{background:var(--surface-2)}
+  .picker .pg button.E{background:var(--surface-3)}
+  @media (max-width:560px){ .picker .pg{grid-template-columns:repeat(3,1fr)} }
+  .tray button,.slot button{font-size:14px;font-weight:800;padding:7px 10px;border-radius:var(--r1);border:1.5px solid var(--line-2);
+    background:var(--surface);color:var(--ink);cursor:pointer}
+  .tray button.sel{border-color:var(--cta);background:var(--cta-soft);color:var(--cta)}
+  .tray .empty{color:var(--ink-4);font-size:14px;align-self:center}
+  .fs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .fs.one{grid-template-columns:1fr}
+  .fs h3{font-size:15px;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+  .slot{border:1.5px solid var(--line);border-radius:var(--r2);padding:8px 10px;margin-bottom:6px;cursor:pointer;background:var(--surface);min-height:44px}
+  .slot.hot{border-color:var(--cta);background:var(--cta-soft)}
+  .slot .sn{font-size:12.5px;font-weight:800;color:var(--ink-3);margin-bottom:4px}
+  .slot .in{display:flex;flex-wrap:wrap;gap:4px}
+  .slot button.ok{border-color:var(--ok);background:var(--ok-soft)}
+  .slot button.no{border-color:var(--no);background:var(--no-soft);text-decoration:line-through}
+  .stmt{margin-top:14px;border:1.5px solid var(--ink);border-radius:var(--r2);padding:12px 14px;font-size:14.5px}
+  .stmt h4{margin:0 0 8px;font-size:16px;text-align:center}
+  .stmt .l{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
+  .stmt .l.h{font-weight:900;border-top:1px solid var(--line-2);margin-top:6px;padding-top:6px}
+  .stmt .l.s{color:var(--ink-3);padding-left:12px}
+  .stmt .l.c{color:var(--ink-3);padding-left:24px}
+  .stmt .l.t{font-weight:900;border-top:2px solid var(--ink);margin-top:8px;padding-top:6px}
+  .stmt .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:560px){ .fs{grid-template-columns:1fr} .stmt .two{grid-template-columns:1fr} .grid.g3{grid-template-columns:repeat(2,1fr)} }
+  /* 현황 */
+  .mt{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .mt .r{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;font-size:14px}
+  .mt .r b{font-weight:800}
+  .mt .bar2{height:10px;border-radius:99px;background:var(--lv0);overflow:hidden}
+  .mt .bar2 i{display:block;height:100%;background:var(--cta)}
+  .weak{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .weak span{font-size:13.5px;font-weight:800;padding:5px 10px;border-radius:99px;background:var(--no-soft);color:var(--no)}
+  .opt{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-3);font-weight:700;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hd"><h1>계정 훈련</h1><p>계정 자리 · 재무제표 조립 · 분개. 틀린 계정이 더 자주 나온다.</p></div>
+  <div class="tabs" id="tabs"></div>
+  <div id="main"></div>
+</div>
+<script src="js/catalog.js"></script>
+<script src="data/ready.js"></script>
+<script src="js/boot.js"></script>
+<script src="js/store.js"></script>
+<script src="js/acct-data.js"></script>
+<script src="js/acct.js"></script>
+</body>
+</html>
