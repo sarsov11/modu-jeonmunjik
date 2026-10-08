@@ -1,2 +1,2 @@
 /* 자동 생성 — 파이프라인 산출물 */
-window.READY={"pt_civil": {"name": "민법개론", "n": 643, "v": "48b647d4"}, "pt_iplaw": {"name": "산업재산권법", "n": 612, "v": "47792895"}, "pt_natsci": {"name": "자연과학개론", "n": 102, "v": "ace2efd4"}};
+window.READY={"cp_acct": {"name": "회계학", "n": 549, "v": "3a7ab148"}, "cp_biz": {"name": "경영학", "n": 1171, "v": "4cb0a5df"}, "cp_comm": {"name": "기업법(상법)", "n": 1928, "v": "07049964"}, "cp_econ": {"name": "경제원론", "n": 385, "v": "63aba84a"}, "cp_tax": {"name": "세법개론", "n": 1203, "v": "6bdeadb1"}, "pt_civil": {"name": "민법개론", "n": 643, "v": "f7d16ad4"}, "pt_iplaw": {"name": "산업재산권법", "n": 612, "v": "7350b4c0"}, "pt_natsci": {"name": "자연과학개론", "n": 102, "v": "d67fa4c3"}};

@@ -246,3 +246,15 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 
 /* 발문 주제 — 선지가 주제를 받아 쓰는 과목(행정학 등) */
 .topic{display:inline-block;font-size:15px;font-weight:900;color:var(--ink);background:var(--surface-3);border-radius:var(--r1);padding:3px 10px;margin-bottom:10px}
+
+/* 기출 표·수식(js/rich.js) */
+.tblw{overflow-x:auto;margin:8px 0;-webkit-overflow-scrolling:touch}
+.qt{border-collapse:collapse;font-size:13.5px;line-height:1.45;white-space:normal;min-width:100%}
+.qt td{border:1px solid var(--line-2);padding:5px 8px;vertical-align:top;white-space:nowrap;word-break:keep-all}
+.qt td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.qt tr:first-child td{background:var(--surface-2);font-weight:800}
+.eq{font-family:"Cambria Math","Times New Roman",serif;font-style:normal;white-space:nowrap}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.15;margin:0 2px}
+.fr>span:first-child{border-bottom:1px solid currentColor;padding:0 3px}
+.fr>span:last-child{padding:0 3px}
+.ov{text-decoration:overline}

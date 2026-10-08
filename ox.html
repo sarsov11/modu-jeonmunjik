@@ -33,6 +33,7 @@
 <script src="js/boot.js"></script>
 <script src="js/judge.js"></script>
 <script src="js/store.js"></script>
+<script src="js/rich.js"></script>
 <script>
 (function () {
   "use strict";
@@ -125,15 +126,15 @@
     var mc = q.mc, 정답 = mc ? String(mc.a) : q.ox;
     var 단추 = mc
       ? '<div class="mcb lock" id="oxb">' + mc.o.map(function (o, i) {
-          return '<button type="button" data-a="' + (i + 1) + '"><b>' + "①②③④⑤"[i] + "</b><span>" + esc(o) + "</span></button>"; }).join("") + "</div>"
+          return '<button type="button" data-a="' + (i + 1) + '"><b>' + "①②③④⑤"[i] + "</b><span>" + RICH(o) + "</span></button>"; }).join("") + "</div>"
       : '<div class="oxb lock" id="oxb"><button type="button" data-a="O">O</button><button type="button" data-a="X">X</button></div>';
     $("stage").innerHTML =
       '<div class="qcard"><div class="src">' + nodeChip(q.n) + '<span class="chip">' + esc(GB.src(q)) + "</span>" +
         (s.re ? '<span class="chip cta">다시 보기</span>' : "") + "</div>" +
         (q.sa ? '<div class="case"><b>사례</b>' + esc(q.sa) + "</div>" : "") +
         (q.tp ? '<div class="topic">' + esc(q.tp) + "</div>" : "") +
-        '<p class="sent" id="sent">' + esc(mc ? mc.s : q.t) + "</p>" +
-        (mc && mc.d ? '<div class="case mcdata" style="margin:12px 0 0">' + esc(mc.d) + "</div>" : "") + "</div>" +
+        '<p class="sent" id="sent">' + RICH(mc ? mc.s : q.t) + "</p>" +
+        (mc && mc.d ? '<div class="case mcdata" style="margin:12px 0 0">' + RICH(mc.d) + "</div>" : "") + "</div>" +
       '<div class="step"><h3>얼마나 확실해요?</h3><div class="conf" id="conf">' +
         [{ v: "sure", name: "확실해요" }, { v: "half", name: "헷갈려요" }].map(function (c, i) { return '<button type="button" data-v="' + c.v + '" aria-pressed="false">' + c.name + "</button>"; }).join("") +
       "</div></div>" +
@@ -216,7 +217,7 @@
       '<div class="qcard"><div class="src">' + nodeChip(p.n) + '<span class="chip cta">헷갈리는 짝</span></div>' +
       '<p class="sent" style="font-size:17px">두 기출 문장 중 <b>맞는 문장</b>을 고르세요.</p>' +
       '<div class="two" id="two">' + A.map(function (x, i) {
-        return '<button type="button" data-i="' + x.i + '"><b>' + "가나"[i] + '</b><span class="tx">' + esc(x.t) + "</span></button>";
+        return '<button type="button" data-i="' + x.i + '"><b>' + "가나"[i] + '</b><span class="tx">' + RICH(x.t) + "</span></button>";
       }).join("") + "</div></div><div id=\"after\"></div>";
     $("two").querySelectorAll("button").forEach(function (b) {
       b.onclick = function () {
@@ -249,7 +250,7 @@
       .sort(function (a, b) { return (b.y || 0) - (a.y || 0); }).slice(0, 12);
     var h = '<div class="readhd"><h2>' + esc(nd.name) + " — 맞는 기출 문장</h2></div>" +
       '<p class="muted" style="margin:4px 0 0;font-size:14.5px">시험에 맞는 문장으로 나온 것만 모았어요. 최근 것부터.</p>' +
-      '<div class="readlist">' + os.map(function (q) { return "<p>" + esc(q.t) + "<small>" + esc(GB.src(q)) + "</small></p>"; }).join("") + "</div>" +
+      '<div class="readlist">' + os.map(function (q) { return "<p>" + RICH(q.t) + "<small>" + esc(GB.src(q)) + "</small></p>"; }).join("") + "</div>" +
       '<div class="acts">' + (back ? '<button class="btn" id="nx">이어서 풀기</button>'
                                    : '<a class="btn" href="ox.html?node=' + no + '">이 쟁점 O·X 풀기</a>') + "</div>";
     $("stage").innerHTML = h;
@@ -267,7 +268,7 @@
       if (Date.now() >= end || i >= pool.length) return fin();
       var q = pool[i++], t0 = Date.now();
       $("stage").innerHTML = '<div class="spd num" id="left"></div><div class="qcard"><div class="src">' + nodeChip(q.n) +
-        '</div><p class="sent">' + esc(q.t) + '</p></div><div class="oxb" id="oxb"><button data-a="O">O</button><button data-a="X">X</button></div>';
+        '</div><p class="sent">' + RICH(q.t) + '</p></div><div class="oxb" id="oxb"><button data-a="O">O</button><button data-a="X">X</button></div>';
       $("oxb").querySelectorAll("button").forEach(function (b) {
         b.onclick = function () {
           var good = b.dataset.a === q.ox; n++; if (good) ok++;

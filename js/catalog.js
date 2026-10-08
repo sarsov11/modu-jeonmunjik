@@ -20,7 +20,7 @@
     pt_iplaw: { name: "산업재산권법" }, pt_civil: { name: "민법개론" }, pt_natsci: { name: "자연과학개론" },
     sm_fin: { name: "재정학" }, sm_tax: { name: "세법학개론" }, sm_acct: { name: "회계학개론" },
     sm_comm: { name: "상법(선택)" }, sm_civil: { name: "민법(선택)" }, sm_admin: { name: "행정소송법(선택)" },
-    cp_biz: { name: "경영학" }, cp_econ: { name: "경제원론" }, cp_comm: { name: "상법" }, cp_tax: { name: "세법개론" }, cp_acct: { name: "회계학" }
+    cp_biz: { name: "경영학" }, cp_econ: { name: "경제원론" }, cp_comm: { name: "기업법(상법)" }, cp_tax: { name: "세법개론" }, cp_acct: { name: "회계학" }
   };
 
   /* 시험일은 2027년 공고 전 — 전부 예상(설정에서 바꿀 수 있다) */
