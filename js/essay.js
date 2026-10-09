@@ -17,6 +17,17 @@
   var E = null;          /* 지금 시험 자료 */
   var view = { s: null, u: null, more: 0 };
   var timerId = null;
+  /* 2차 합격 기준 — 2026-10-09 법령 원문 확인(korean-law). 수치는 조문 그대로, 해석 붙이지 않는다 */
+  var PASS2 = {
+    nomusa: ["과목마다 만점의 40% 이상, 전 과목 총점의 60% 이상", "인원이 최소합격인원에 못 미치면 40% 넘긴 사람 중 총점순으로 채움", "공인노무사법 시행령 제12조"],
+    semusa: ["과목마다 40점 이상, 전 과목 평균 60점 이상", "최소 합격인원에 못 미치면 평균점수순으로 채움", "세무사법 시행령 제8조"],
+    gwanse: ["매 과목 40점 이상, 전 과목 평균 60점 이상", "최소합격인원에 못 미치면 40점 넘긴 사람 중 평균순", "관세사법 시행령 제13조"],
+    patent: ["선택과목 50점 이상, 필수과목 각 40점 이상·필수 평균 60점 이상", "최소합격인원보다 적으면 필수 평균순", "변리사법 시행령 제4조"],
+    gampyeong: ["모든 과목 40점 이상, 전 과목 평균 60점 이상", "최소합격인원에 못 미치면 40점 넘긴 사람 중 평균순", "감정평가법 시행령 제10조"],
+    cpa: ["매 과목 배점의 60% 이상(과목 합격은 다음 회 1번 면제)", "최소선발예정인원에 못 미치면 40% 넘긴 사람 중 총점순", "공인회계사법 시행령 제3조"],
+    beopmu: ["매 과목 40점 이상인 사람 중 선발예정인원 안에서 총점순(상대평가)", "합격선은 해마다 달라짐", "법무사규칙 제13조"],
+    lawyer: ["선택형·논술형 환산 총점으로 결정, 과목별 합격최저점수 미달이면 불합격", "환산비율·최저점수는 시행령 별표 3·4", "변호사시험법 제10조, 시행령 제8조"]
+  };
 
   function load() {
     var o = {};
@@ -45,6 +56,13 @@
   function judge(it, text) {
     var n = norm(text), got = 0, res = [];
     (it.el || []).forEach(function (el) {
+      if (el.cand) {   /* 「N가지 쓰시오」 — 후보 중 맞힌 개수만큼 */
+        var hc = el.cand.filter(function (c) { return (c.kw || []).some(function (w) { return hasWord(n, w); }); });
+        var k = el.k || el.cand.length, part = Math.min(hc.length, k) / k;
+        got += el.p * part;
+        res.push({ id: el.id, hit: part >= 1, part: part, words: hc.map(function (c) { return c.n; }) });
+        return;
+      }
       var must = (el.must || []).every(function (m) { return hasWord(n, m); });
       var hitW = words(el).filter(function (w) { return hasWord(n, w); });
       var hit = must && hitW.length > 0;
@@ -134,6 +152,8 @@
     var avg = tried.length ? Math.round(tried.reduce(function (a, id) { var b = R.best[id], it = itemById(id); return a + (it.p ? b.s / it.p : 0); }, 0) / tried.length * 100) : 0;
     var h = '<div class="hd"><h1>2차 답안 훈련</h1><a href="strategy.html">1차 전략</a></div>';
     h += '<div class="chips" id="ex">' + IDX.map(function (x) { return '<button type="button" data-c="' + x.code + '"' + (x.code === E.code ? ' class="on"' : "") + ">" + esc(x.name) + "</button>"; }).join("") + "</div>";
+    var ps = PASS2[E.code];
+    if (ps) h += '<div class="pass2"><b>2차 합격 기준</b> ' + esc(ps[0]) + ". " + esc(ps[1]) + '. <span>' + esc(ps[2]) + "</span></div>";
     h += '<div class="today"><h2>' + (due.length ? "오늘 다시 떠올릴 물음 " + due.length + "개" : "오늘 할 것") + "</h2>" +
       "<p>" + (due.length ? "어제까지 놓친 득점 요소가 다시 나올 차례입니다. 물음 하나에 1분." :
         "아래 단원 중 출제가 많은 곳부터 물음을 골라 「쟁점 인출」로 시작하세요. 놓친 요소는 내일부터 여기에 모입니다.") + "</p>" +
@@ -192,11 +212,14 @@
       return "<tr>" + String(r).split("|").map(function (c) { return "<td>" + esc(c.trim()) + "</td>"; }).join("") + "</tr>";
     }).join("") + "</table></div>";
   }
+  function imgHtml(q) {
+    return (q.img || []).map(function (u) { return '<img class="qimg" src="' + esc(u) + '" alt="문제 그림" loading="lazy">'; }).join("");
+  }
   function qHtml(it, foldLong) {
     var q = qOf(it), long = (q.t || "").length > 700 && foldLong;
     return '<div class="qbox"><div class="src"><span>' + esc(E.name) + " " + it.y + " · " + esc(it.s) + " · " + it.n + "번" + (it.sn ? " " + esc(it.sn) : "") + "</span>" +
       '<span class="pill t-' + esc(it.t) + '">' + esc(it.t || "서술") + "</span>" + (it.p ? "<span>" + it.p + "점</span>" : "") + "</div>" +
-      '<div class="body" id="qbody"' + (long ? ' style="max-height:260px;overflow:hidden"' : "") + ">" + esc(q.t) + tableHtml(q.tb) + (q.fig ? '<p class="hint">원본 시험지에 그림·표가 더 있습니다.</p>' : "") + "</div>" +
+      '<div class="body" id="qbody"' + (long ? ' style="max-height:260px;overflow:hidden"' : "") + ">" + esc(q.t) + tableHtml(q.tb) + imgHtml(q) + (q.fig && !q.img ? '<p class="hint">원본 시험지에 그림·표가 더 있습니다.</p>' : "") + "</div>" +
       (long ? '<button class="fold" type="button" id="unfold">문제 전체 보기</button>' : "") +
       (it.sq ? '<div class="sub">' + esc(it.sn ? it.sn + " " : "") + esc(it.sq) + "</div>" : "") + "</div>";
   }
@@ -234,7 +257,7 @@
     return i >= 0 && i < sib.length - 1 ? '<a class="btn" href="#q=' + encodeURIComponent(sib[i + 1].id) + '&m=' + (sib[i + 1].el && sib[i + 1].el.length ? "recall" : "full") + '">다음 물음</a>' : '<a class="btn" href="#">목록</a>';
   }
   function elHtml(el, cls, extra) {
-    var kw = (el.kw || []).join(", ");
+    var kw = el.cand ? "다음 중 " + el.k + "개 · " + el.cand.map(function (c) { return c.n; }).join(", ") : (el.kw || []).join(", ");
     return '<div class="el ' + (cls || "") + '" data-id="' + esc(el.id) + '"><div class="h"><b>' + esc(el.n) + "</b><span>" + el.p + "점</span></div>" +
       (kw ? '<div class="kw">핵심어 · ' + esc(kw) + "</div>" : "") + (el.src ? '<div class="gr">근거 · ' + esc(el.src) + (el.ok === false ? " (확인 중)" : "") + "</div>" : "") + (extra || "") + "</div>";
   }
@@ -323,7 +346,7 @@
     var J = judge(it, text), self = {};
     function total() {
       var s = J.got;
-      Object.keys(self).forEach(function (k) { if (self[k]) s += it.el.filter(function (e) { return e.id === k; })[0].p; });
+      Object.keys(self).forEach(function (k) { if (self[k]) { var i2 = it.el.findIndex(function (e) { return e.id === k; }); s += it.el[i2].p * (1 - (J.res[i2].part || 0)); } });
       return round1(s);
     }
     function draw() {
@@ -332,8 +355,9 @@
         '<div class="note">핵심어 대조 점수(공식 점수 아님). 다른 표현으로 쓴 요소는 「썼음」을 누르면 넣어 줍니다 — 따로 표시해 둡니다.' + (sec ? " 걸린 시간 " + Math.round(sec / 60) + "분." : "") + "</div>" +
         '<div class="srow"><button class="btn ghost" type="button" id="again">다시 쓰기</button>' + nextLink(it, false) + "</div></div>" +
         '<div class="els">' + it.el.map(function (el, i) {
-          var r = J.res[i], cls = r.hit ? "hit" : self[el.id] ? "self" : "miss";
-          var extra = r.hit ? '<div class="kw">찾은 낱말 · ' + esc(r.words.join(", ")) + "</div>" :
+          var r = J.res[i], cls = r.hit ? "hit" : self[el.id] ? "self" : "miss", extra0;
+          if (!r.hit && r.part > 0) extra0 = '<div class="kw">' + Math.round(r.part * el.k) + "/" + el.k + "개 · " + esc(r.words.join(", ")) + "</div>"; else extra0 = "";
+          var extra = r.hit ? '<div class="kw">찾은 낱말 · ' + esc(r.words.join(", ")) + "</div>" : extra0 +
             '<div class="acts2"><button type="button" data-self="' + esc(el.id) + '"' + (self[el.id] ? ' class="on"' : "") + ">썼음(다른 표현)</button></div>";
           return elHtml(el, cls, extra);
         }).join("") + "</div>" + modelHtml(it);
@@ -389,7 +413,7 @@
     list.forEach(function (it) {
       var q = qOf(it);
       if (it.k !== lastK) {
-        h += '<div class="qbox mq"><div class="src"><span>' + it.n + "번" + (m.total ? "" : "") + '</span></div><div class="body">' + esc(q.t) + tableHtml(q.tb) + "</div></div>";
+        h += '<div class="qbox mq"><div class="src"><span>' + it.n + "번" + (m.total ? "" : "") + '</span></div><div class="body">' + esc(q.t) + tableHtml(q.tb) + imgHtml(q) + "</div></div>";
         lastK = it.k;
       }
       h += (it.sq ? '<div class="qbox" style="margin-top:6px"><div class="sub" style="margin:0">' + esc((it.sn ? it.sn + " " : "") + it.sq) + (it.p ? " (" + it.p + "점)" : "") + "</div></div>" : "") +
