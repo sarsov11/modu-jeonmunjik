@@ -83,7 +83,7 @@
       $("main").querySelectorAll(".grid button").forEach(function (b) { b.onclick = function () { choose(b); }; });
     }
     function finish(ok, picked) {
-      grade("a", a.id, ok);
+      grade("a", a.id, ok); if (window.ZZ) { if (ok) ZZ.ok(picked); else ZZ.no(picked); }
       $("main").querySelectorAll(".grid button").forEach(function (b) {
         b.disabled = true;
         var right = step === 1 ? b.dataset.v === a.g : step === 2 ? a.sec.indexOf(b.dataset.v) >= 0 : b.dataset.v === a.side;
@@ -118,7 +118,7 @@
     $("main").querySelectorAll(".grid button").forEach(function (b) {
       b.onclick = function () {
         var ok = b.dataset.v === a.side;
-        grade("s", a.id, ok);
+        grade("s", a.id, ok); if (window.ZZ) { if (ok) ZZ.ok(b); else ZZ.no(b); }
         $("main").querySelectorAll(".grid button").forEach(function (x) { x.disabled = true; if (x.dataset.v === a.side) x.classList.add("ok"); else if (x === b) x.classList.add("no"); });
         $("main").insertAdjacentHTML("beforeend", fbAcct(a, ok) + '<button class="btn block next" id="nx">다음</button>');
         $("nx").onclick = sideMode; $("nx").focus();
@@ -205,6 +205,7 @@
         checked = true;
         var wrong = 0;
         BUILD.names.forEach(function (n) { var a = D.BY[n], ok = a.sec.indexOf(place[n]) >= 0; if (!ok) wrong++; grade("a", a.id, ok); });
+        if (window.ZZ) { if (wrong) ZZ.no(this); else ZZ.ok(this); }
         draw();
         var v = document.createElement("div");
         v.className = "fb"; v.innerHTML = '<div class="v ' + (wrong ? "no" : "ok") + '">' + (wrong ? "틀린 자리 " + wrong + "개" : "전부 맞음") + "</div>" +
@@ -280,6 +281,7 @@
           done = true;
           var ok = pool.every(function (n) { return (st[n] || "") === (ans[n] || ""); });
           grade("j", j.id, ok);
+          if (window.ZZ) { if (ok) ZZ.ok(this); else ZZ.no(this); }
           draw();
           function side(xs) { return xs.map(function (x) { return "<p><b>" + esc(x[0]) + '</b><span class="num">' + won(x[1]) + "</span></p>"; }).join(""); }
           $("main").insertAdjacentHTML("beforeend", '<div class="fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + "</div>" +
@@ -302,7 +304,7 @@
     $("main").querySelectorAll(".grid button").forEach(function (b) {
       b.onclick = function () {
         var ok = b.dataset.v === p.a;
-        grade("p", p.id, ok);
+        grade("p", p.id, ok); if (window.ZZ) { if (ok) ZZ.ok(b); else ZZ.no(b); }
         $("main").querySelectorAll(".grid button").forEach(function (x) { x.disabled = true; if (x.dataset.v === p.a) x.classList.add("ok"); else if (x === b) x.classList.add("no"); });
         $("main").insertAdjacentHTML("beforeend", '<div class="fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + " — " + esc(p.a) + "</div>" + esc(p.why) +
           '</div><button class="btn block next" id="nx">다음</button>');
