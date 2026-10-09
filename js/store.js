@@ -334,6 +334,7 @@
 
   /* ── 나비 — 넷. 폰에서는 아래 탭 ── */
   var ICON = {
+    essay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>',
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
     tree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="21" cy="11" r="1.2" fill="currentColor"/></svg>',
     acct: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 10h18"/></svg>',
@@ -344,6 +345,8 @@
                ["drill.html", "훈련", "drill"], ["settings.html", "설정", "set"]];
   /* 회계학이 있는 시험은 「계정」 탭(계정 자리·재무제표 조립·분개)을 훈련 뒤에 넣는다 */
   if (["cpa", "semusa", "gwanse", "nomusa"].indexOf((P.exam || "")) >= 0) PAGES.splice(3, 0, ["acct.html", "계정", "acct"]);
+  /* 2차 답안 훈련(2026-10-09) — 설정 바로 앞 */
+  PAGES.splice(PAGES.length - 1, 0, ["essay.html", "2차", "essay"]);
   function mountNav(here) {
     /* 처음 온 사람은 첫 설정으로 — 검사기(webdriver)는 보내지 않는다 */
     if (!onboarded() && here !== "start.html" && !navigator.webdriver && !/[?&]nostart/.test(location.search)) {
