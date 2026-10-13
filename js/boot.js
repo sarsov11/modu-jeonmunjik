@@ -17,8 +17,8 @@
   if (cur) document.write('<script src="data/' + cur + '.js?v=' + (R[cur].v || "") + '"><\/script>');
   /* 쟁점 요점 정리(data/notes/<id>.js → window.NOTES) — 오늘 공부 첫머리 「먼저 읽기」에 쓴다. 있는 과목만 */
   /* 아래 두 줄은 해설싣기.py 가 고쳐 쓴다 — 손으로 고치지 말 것 */
-  var NOTED = {"nm_labor1": "825639", "nm_labor2": "333201"};
-  var EXPLED = {"bm_1": "01f8e3", "bm_2": "32f2e0", "bm_3": "249ddc", "bm_4": "1d0d8b", "nm_biz": "f477c3", "nm_civil": "f341ef", "nm_econ": "0f03d3", "nm_labor1": "8ea20d", "nm_labor2": "f6bd8d", "nm_social": "22e3d5", "pt_civil": "802f50"};
+  var NOTED = {"nm_labor1": "825639", "nm_labor2": "42ae8e"};
+  var EXPLED = {"bm_1": "c6b36c", "bm_2": "5bd77d", "bm_3": "249ddc", "bm_4": "b8fd18", "gs_law": "f8a483", "nm_biz": "f477c3", "nm_civil": "f341ef", "nm_econ": "0f03d3", "nm_labor1": "12d9ef", "nm_labor2": "7fa510", "nm_social": "11cf54", "pt_civil": "6e982b", "pt_iplaw": "471bf9", "sm_admin": "0875aa"};
   if (cur && NOTED[cur]) document.write('<script src="data/notes/' + cur + '.js?v=' + NOTED[cur] + '"><\/script>');
   /* 틀린 문장 해설(data/expl/<id>.js → window.EXPL: 문장 id → {f 바른 문장, w 이유}) */
   if (cur && EXPLED[cur]) document.write('<script src="data/expl/' + cur + '.js?v=' + EXPLED[cur] + '"><\/script>');
