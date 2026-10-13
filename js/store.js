@@ -173,6 +173,15 @@
       var a = S.ans[id]; return ITEM[id] && a.due != null && a.due <= TODAYN && !(a.at && ymd(new Date(a.at)) === TODAY && a.ok);
     }).sort(function (a, b) { return (S.ans[a].box - S.ans[b].box) || (S.ans[a].at - S.ans[b].at); });
   }
+  /* 출제 문항 수 — 쟁점(들)에 붙은 기출 선지를 문항(시험·연도·번호)으로 묶어 센다. 해마다 몇 문제 나오나 = 문항 수 ÷ 모은 해 수(1013 대표님 「파트별로 몇 문제 나오는지」) */
+  var 해들 = {};
+  Object.keys(QB).forEach(function (no) { QB[no].forEach(function (q) { if (q.y) 해들[q.y] = 1; }); });
+  var 해수 = Math.max(1, Object.keys(해들).length);
+  function qCount(nos) {
+    var seen = {}, n = 0;
+    (nos || []).forEach(function (no) { qs(no).forEach(function (q) { var k = q.e + q.y + "_" + q.qn; if (!seen[k]) { seen[k] = 1; n++; } }); });
+    return { n: n, years: 해수, avg: Math.round(n / 해수 * 10) / 10 };
+  }
   function wrongList() {
     return Object.keys(S.ans).filter(function (id) { return ITEM[id] && !S.ans[id].ok; })
       .sort(function (a, b) { return S.ans[b].at - S.ans[a].at; });
@@ -410,7 +419,7 @@
     nodesOf: function (k) { return (CH[k] || { nodes: [] }).nodes.map(function (n) { return NODE[n]; }); },
     chsOf: function (p) { return (PART[p] || { chs: [] }).chs.map(function (k) { return CH[k]; }); },
     partNodes: partNodes,
-    qs: qs, item: item, pairs: pairs, pair: pair, markDiff: markDiff,
+    qs: qs, item: item, pairs: pairs, pair: pair, markDiff: markDiff, qCount: qCount,
     nodeStat: nodeStat, chStat: chStat, partStat: partStat, overall: overall,
     answer: answer, pairAnswer: pairAnswer, answered: answered, reset: reset,
     dueList: dueList, wrongList: wrongList, focusNodes: focusNodes, freshOf: freshOf,

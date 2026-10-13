@@ -486,7 +486,7 @@
       lg.dataset.cx=x; lg.dataset.cy=y; lg.dataset.r=rr;
       var l1=txt(lg,p.name,{x:x+ca*off,y:up?y0-L.fSub-5:y0,"text-anchor":anc,fill:SINK,
         "font-size":L.fName+2,"font-weight":700,"font-family":cv("--kr")});
-      var l2=txt(lg,ps.vol+"쪽 · 기출 "+ps.n+" · 성취도 "+ps.achieve+"%",
+      var l2=txt(lg,"해마다 약 "+GB.qCount(GB.nodes.filter(function(n){return n.part===p.no;}).map(function(n){return n.no;})).avg+"문제 · 성취도 "+ps.achieve+"%",
         {x:x+ca*off,y:up?y0:y0+L.fSub+5,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub+1,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
@@ -511,7 +511,7 @@
       gp.addEventListener("keydown",function(e){
         if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
     });
-    coreOrb(g,CORE,T.subject,T.stat.nodes+"쟁점 · 기출 "+GB.num(ALL.n),null);
+    coreOrb(g,CORE,T.subject,"해마다 약 "+GB.qCount(GB.nodes.map(function(n){return n.no;})).avg+"문제",null);
     unstack(g,L.CX,L.CY);
   }
 
@@ -570,7 +570,8 @@
     sky(g0,flat?"flat":key);
     var g=el("g",{class:"ink"},g0);
     var list=flat?T.nodes.slice():chNodes(key), m=list.length;
-    var RX=Math.round(L.W*(m>9?.335:.30)), RY=Math.round(L.H*(m>9?.335:.30));
+    /* 궤도는 정원 — 타원으로 눕히면 위아래 원이 몰리고 판이 찌그러져 보인다(1013 대표님 「원 찌부」) */
+    var R0=Math.min(L.W,L.H)*(m>9?.31:.30), RX=Math.round(R0), RY=Math.round(R0);
     el("ellipse",{cx:L.CX,cy:L.CY,rx:RX,ry:RY,fill:"none",stroke:SLINE,"stroke-width":1,opacity:".6"},g);
     var link=el("g",{},g), nodes=el("g",{},g), labs=el("g",{},g);
     var maxV=Math.max.apply(null,list.map(function(n){ return n.vol; }))||1;
@@ -609,7 +610,8 @@
       if(tiny){ short=n.title.split(/[·(]/)[0]; if(short.length>7) short=short.slice(0,7)+"…"; }
       var l1=txt(lg,short,{x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,
         fill:lock?SINK2:SINK,"font-size":L.fName,"font-weight":700,"font-family":cv("--kr")});
-      var l2=txt(lg,tiny?"":n.vol+"쪽 · 기출 "+n.q+(lock?"":" · "+st.achieve+"%"),
+      var qc=GB.qCount([n.no]);
+      var l2=txt(lg,tiny?qc.avg+"문제":"해마다 약 "+qc.avg+"문제"+(lock?"":" · "+st.achieve+"%"),
         {x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
@@ -621,7 +623,7 @@
         if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
     });
     if(flat){
-      coreOrb(g,hue,T.subject,m+"쟁점 · 기출 "+GB.num(ALL.n)+" · "+ALL.achieve+"%",null);
+      coreOrb(g,hue,T.subject,"해마다 약 "+GB.qCount(list.map(function(n){return n.no;})).avg+"문제",null);
       unstack(g,L.CX,L.CY); return;
     }
     var st=GB.chStat(key);
@@ -687,7 +689,7 @@
     if(level===0){
       c.innerHTML='<span class="swapin">'+esc(T.subject)+'</span>';
       document.getElementById("lede").textContent=
-        T.parts.map(function(p){return p.name;}).join(" · ")+" — 쟁점 "+T.stat.nodes+"개, 기출 선지 "+GB.num(ALL.n)+"개";
+        T.parts.map(function(p){return p.name+" 해마다 약 "+GB.qCount(GB.nodes.filter(function(n){return n.part===p.no;}).map(function(n){return n.no;})).avg+"문제";}).join(" · ")+" ("+GB.qCount([]).years+"개년 기출로 셈)";
       document.getElementById("plateTitle").textContent=T.subject;
       document.getElementById("plateSub").textContent=GB.track().name;
     }else if(level===2&&chk){
@@ -803,7 +805,7 @@
     tc.style.color=(tier==="C"||tier==="L")?SBG2:SBG;
     document.getElementById("pkTitle").textContent=n.title;
     document.getElementById("pkQ").textContent=
-      "학습 분량 "+n.vol+"쪽 · 기출 선지 "+n.q+"개 · "+howFar(st);
+      "해마다 약 "+GB.qCount([n.no]).avg+"문제 · 기출 선지 "+n.q+"개 · "+howFar(st);
     document.getElementById("pkBody").innerHTML=
       '<div class="pk-stats"><div><b>'+n.vol+'</b><span>학습 분량</span></div>'+
       '<div><b>'+n.q+'</b><span>기출 선지</span></div>'+
@@ -845,7 +847,7 @@
       : '<p style="font-size:14px;color:var(--ink-3)">이 쟁점에 붙은 기출 문장이 아직 없어요.</p>';
     document.getElementById("shGo").innerHTML= qs.length
       ? '<a class="btn" href="ox.html?node='+n.no+'">이 쟁점 O·X 풀기</a>'+
-        '<a class="btn ghost" href="ox.html?read='+n.no+'">맞는 문장 읽기</a>'
+        '<a class="btn ghost" href="ox.html?read='+n.no+'">요점 보기</a>'
       : '<span class="muted">이 쟁점은 아직 기출 문장이 없어요.</span>';
     sheet.hidden=false;
     requestAnimationFrame(function(){ sheet.classList.add("on"); });
@@ -868,7 +870,7 @@
         var st=GB.partStat(p.no);
         return '<div class="grp"><div class="gh">'+
           '<span class="cd" style="color:'+PC[p.no].hex+'">'+p.no+'</span>'+
-          '<h3>'+esc(p.name)+'</h3><span class="n">'+st.vol+'쪽 · 기출 '+st.n+'</span></div>'+
+          '<h3>'+esc(p.name)+'</h3><span class="n">해마다 약 '+GB.qCount(GB.nodes.filter(function(n){return n.part===p.no;}).map(function(n){return n.no;})).avg+'문제</span></div>'+
           GB.chsOf(p.no).map(function(c){
             return '<div class="mrow" data-goch="'+c.key+'">'+
               '<span class="bul" style="background:'+PC[p.no].hex+';opacity:.7"></span>'+
@@ -881,14 +883,14 @@
       host.innerHTML=chs.map(function(c){
         return '<div class="grp"><div class="gh">'+
           '<span class="cd" style="color:'+PC[c.part].hex+'">'+c.no+'</span>'+
-          '<h3>'+esc(c.name)+'</h3><span class="n">쟁점 '+c.nodes.length+'</span></div>'+
+          '<h3>'+esc(c.name)+'</h3><span class="n">쟁점 '+c.nodes.length+' · 해마다 약 '+GB.qCount(c.nodes).avg+'문제</span></div>'+
           chNodes(c.key).map(function(n){
             var st=GB.nodeStat(n.no), tier=tierOf(st.achieve,st.solved>0);
             return '<div class="mrow" data-node="'+n.no+'">'+
               '<span class="bul" style="background:'+(tier==="S"?GOLD:tone(c.part,tier==="L"?"L":"A",paper()?6:0,nodeHue(n.no)))+
               ';opacity:'+(tier==="L"?.55:1)+'"></span>'+
               '<span class="nm">'+esc(n.title)+'</span>'+
-              '<span class="pc">'+n.vol+'쪽 · 기출 '+n.q+'</span></div>';
+              '<span class="pc">해마다 '+GB.qCount([n.no]).avg+'문제</span></div>';
           }).join("")+'</div>';
       }).join("");
     }

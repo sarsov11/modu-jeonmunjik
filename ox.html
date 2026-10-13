@@ -210,20 +210,30 @@
 
         var h = '<div class="verdict ' + j.tone + '"><div class="top"><span class="mk">' + (ok ? "O" : "✕") + "</span>" +
           (ok ? '<span class="reward">+1</span>' : "") + '<span class="chip">' + esc(j.label || { "재시도정답": "다시 풀어 맞힘", "연속오답": "연속 오답" }[j.kind] || j.kind) + "</span></div>" +
-          '<p class="say">' + esc(j.say) + "</p>" +
-          '<p class="ans">정답은 <b>' + (mc ? "①②③④⑤"[+정답 - 1] : q.ox) + "</b>" + (mc ? "" : q.ox === "X" ? " — 이 문장은 틀린 문장이에요." : " — 맞는 문장이에요.") + "</p>";
-        var 해설 = "";
+          '<p class="ans">정답 <b>' + (mc ? "①②③④⑤"[+정답 - 1] : q.ox) + "</b></p>";
+        /* 해설 — ① 틀린 문장 해설(data/expl: 바르게 고친 문장 + 이유) ② 같은 쟁점에서 낱말만 바꿔 낸 맞는 기출 ③ 가장 닮은 맞는 기출.
+           판정 코칭 문장(「~는 헷갈리는 자리예요」 따위)은 뺐다(1013 대표님). 해설은 접지 않고 바로 보인다 */
+        var 해설 = "", ex = (window.EXPL || {})[q.i];
         var p = pairOf(q.i);
-        if (p) {
+        if (ex && !mc && q.ox === "X") {
+          if (ex.f) 해설 += '<div class="pair"><div class="lab">바른 문장</div><p>' + GB.markDiff(ex.f, q.t)[0] + "</p></div>";
+          해설 += '<div class="pair"><div class="lab">왜 틀렸나</div><p>' + RICH(ex.w) + "</p></div>";
+        } else if (ex && mc && ex.w) {
+          해설 += '<div class="pair"><div class="lab">해설</div><p>' + RICH(ex.w) + "</p></div>";
+        } else if (p) {
           var d = GB.markDiff(p.o.t, p.x.t);
-          해설 += '<div class="pair"><div class="lab">맞는 문장 — 바뀐 곳 색칠</div>' +
+          해설 += '<div class="pair"><div class="lab">같은 내용을 맞게 낸 기출 · ' + esc((p.o.y || "") + " " + (p.o.e || "")) + "</div>" +
                '<p><b style="color:var(--ok)">맞음</b> ' + d[0] + "</p>" +
                '<p><b style="color:var(--no)">틀림</b> ' + d[1] + "</p></div>";
         } else if (!mc && q.ox === "X") {
           var o = nearestO(q);
-          if (o) 해설 += '<div class="pair"><div class="lab">같은 쟁점의 맞는 기출 문장 · ' + esc(GB.src(o)) + "</div><p>" + GB.markDiff(o.t, q.t)[0] + "</p></div>";
+          if (o) 해설 += '<div class="pair"><div class="lab">같은 쟁점의 맞는 기출 · ' + esc(GB.src(o)) + "</div><p>" + GB.markDiff(o.t, q.t)[0] + "</p></div>";
         }
-        if (해설) h += '<div class="expl" id="expl"><button type="button">해설 보기</button><div class="body">' + 해설 + "</div></div>";
+        if (ex && ex.f && p && q.ox === "X") {
+          var d2 = GB.markDiff(p.o.t, p.x.t);
+          if (p.x.i !== q.i) 해설 += '<div class="pair"><div class="lab">비슷하게 낸 기출</div><p><b style="color:var(--ok)">맞음</b> ' + d2[0] + "</p></div>";
+        }
+        if (해설) h += '<div class="expl open" id="expl"><div class="body">' + 해설 + "</div></div>";
         if (extra) h += '<p class="more">' + esc(GB.node(q.n).name) + " 문장 하나를 바로 뒤에 넣었어요.</p>";
         h += "</div>";
         var readBtn = (j.next === "concept" || j.next === "lecture")
@@ -231,7 +241,6 @@
         h += '<div class="acts">' + readBtn + '<button class="btn" id="nx">다음</button></div>';
         $("after").innerHTML = h;
         $("nx").onclick = next;
-        if ($("expl")) $("expl").firstChild.onclick = function () { $("expl").classList.toggle("open"); this.textContent = $("expl").classList.contains("open") ? "해설 접기" : "해설 보기"; };
         if ($("read")) $("read").onclick = function () { showRead(q.n, true); };
         $("nx").focus({ preventScroll: true });
         $("after").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -268,7 +277,7 @@
         if (mode === "today") GB.markToday(todayIdx[pos]);
         drawProg();
         $("after").innerHTML = '<div class="verdict ' + (ok ? "good" : "bad") + '"><div class="top"><span class="mk">' + (ok ? "O" : "✕") + "</span></div>" +
-          '<p class="say">' + (ok ? "정답" : "오답. 칠한 부분 비교") + "</p>" +
+          '<p class="say">' + (ok ? "정답" : "오답") + "</p>" +
           '<p class="ans">출처 — 맞음 ' + esc((p.o.y || "") + " " + (p.o.e || "")) + " · 틀림 " + esc((p.x.y || "") + " " + (p.x.e || "")) + "</p></div>" +
           '<div class="acts"><button class="btn" id="nx">다음</button></div>';
         $("nx").onclick = next; $("nx").focus({ preventScroll: true });
@@ -280,19 +289,21 @@
        ① 요점 정리(data/notes, 있는 과목만) ② 시험에 맞는 문장으로 나온 기출(오늘 풀 문장은 뺀다)
        ③ 시험이 바꿔 낸 곳(같은 쟁점 맞는 문장·틀린 문장, 다른 낱말 색칠) */
   var LC = ["#2563EB", "#10B981", "#8B5CF6", "#F97316", "#EC4899", "#06B6D4"];
-  function showLearn(s) {
+  function showLearn(s, 따로) {
     var nd = GB.node(s.n);
     if (!nd) { next(); return; }
     var 몇째 = 0, 전체 = 0, 문제수 = 0, 오늘 = {};
+    if (따로) { 몇째 = 1; 전체 = 1; }
+    else
     seq.forEach(function (x, i) {
       if (x.k === "learn") { 전체++; if (i <= pos) 몇째++; }
       if (x.k === "ox") 오늘[x.id] = 1;
     });
-    for (var i = pos + 1; i < seq.length && seq[i].k !== "learn"; i++) if (seq[i].k !== "learn" && !seq[i].re) 문제수++;
+    if (!따로) for (var i = pos + 1; i < seq.length && seq[i].k !== "learn"; i++) if (seq[i].k !== "learn" && !seq[i].re) 문제수++;
     var lc = LC[(몇째 - 1 + LC.length) % LC.length];
     var note = (window.NOTES || {})[String(s.n)];
-    var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">먼저 읽기</span><span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span></div>" +
-      "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개 · 읽고 나면 이 쟁점 문제 " + 문제수 + "개</div>";
+    var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "먼저 읽기") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
+      "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
     if (note && note.pts && note.pts.length) {
       h += "<h3>요점</h3><div class=\"pts\">" + note.pts.map(function (p, k) {
         var b = esc(p.b);
@@ -310,8 +321,13 @@
       return '<div class="swap"><p><b style="color:var(--ok)">맞음</b> ' + d[0] + '</p><p><b style="color:var(--no)">틀림</b> ' + d[1] +
         "</p><small>" + esc((p.x.y || "") + " " + (p.x.e || "")) + "</small></div>";
     }).join("");
-    h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">다 읽었음 · 문제 ' + 문제수 + "개</button></div></div>";
+    if (따로 === "back") h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">이어서 풀기</button></div></div>';
+    else if (따로) h += '<div class="acts" style="margin-top:20px"><a class="btn" style="background:' + lc + '" href="ox.html?node=' + s.n + '">이 쟁점 문제 풀기</a></div></div>';
+    else h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">다 읽었음 · 문제 ' + 문제수 + "개</button></div></div>";
     $("stage").innerHTML = h;
+    window.scrollTo(0, 0);
+    if (따로 === "back") { $("nx").onclick = next; return; }
+    if (따로) return;
     $("nx").onclick = function () {
       results[pos] = { ok: true, learn: 1 };
       if (mode === "today") GB.markToday(todayIdx[pos]);
@@ -319,20 +335,8 @@
     };
   }
 
-  /* ── 맞는 문장 읽기 — 그 쟁점의 O 기출 선지를 모아 보여 준다 ── */
-  function showRead(no, back) {
-    var nd = GB.node(no);
-    var os = GB.qs(no).filter(function (q) { return q.ox === "O"; })
-      .sort(function (a, b) { return (b.y || 0) - (a.y || 0); }).slice(0, 12);
-    var h = '<div class="readhd"><h2>' + esc(nd.name) + " — 맞는 기출 문장</h2></div>" +
-      '<p class="muted" style="margin:4px 0 0;font-size:14.5px">시험에 맞는 문장으로 나온 것만 모았어요. 최근 것부터.</p>' +
-      '<div class="readlist">' + os.map(function (q) { return "<p>" + RICH(q.t) + "<small>" + esc(GB.src(q)) + "</small></p>"; }).join("") + "</div>" +
-      '<div class="acts">' + (back ? '<button class="btn" id="nx">이어서 풀기</button>'
-                                   : '<a class="btn" href="ox.html?node=' + no + '">이 쟁점 O·X 풀기</a>') + "</div>";
-    $("stage").innerHTML = h;
-    if (back) $("nx").onclick = next;
-    window.scrollTo(0, 0);
-  }
+  /* 쟁점 요점 — 판정 뒤 「이 쟁점 요점 보기」, 스킬트리에서 들어올 때. 먼저 읽기와 같은 카드 */
+  function showRead(no, back) { showLearn({ n: no }, back ? "back" : 1); }
 
   /* ── 60초 스피드 — 확신도 없이, 반응만 ── */
   function runSpeed() {
@@ -403,7 +407,7 @@
     else if (k === "enter") { var n = $("nx"); if (n) { e.preventDefault(); n.click(); } }
   });
 
-  if (mode === "read") { showRead(nodeNo, false); $("ttl").textContent = "맞는 문장 읽기"; return; }
+  if (mode === "read") { showRead(nodeNo, false); $("ttl").textContent = "쟁점 요점"; return; }
   if (mode === "speed") { runSpeed(); return; }
   if (!seq.length) {
     $("stage").innerHTML = '<div class="empty">' + (mode === "today" ? "오늘 분량 완료. 내일 새 분량." :
