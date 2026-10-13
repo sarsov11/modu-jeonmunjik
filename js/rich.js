@@ -42,6 +42,11 @@
       var out = [];
       while (st.i < tk.length) {
         var t = tk[st.i++];
+        /* LEFT { … RIGHT } 는 글자 중괄호(min{x, y}) — 묶음이 아니다 */
+        if (/^(LEFT|RIGHT|left|right)$/.test(t)) {
+          var j = st.i; while (j < tk.length && isSp(tk[j])) j++;
+          if (tk[j] === "{" || tk[j] === "}") { out.push(tk[j] === "{" ? "&#123;" : "&#125;"); st.i = j + 1; continue; }
+        }
         if (t === "{") out.push({ g: seq(depth + 1) });
         else if (t === "}") { if (depth > 0) return out; }   /* 짝 없는 } 는 버린다 */
         else out.push(t);
@@ -146,7 +151,7 @@
       if (b < 0) { i = a + 1; continue; }   /* 짝 없는 { (추출 때 남은 것)는 버리고 뒤를 계속 읽는다 */
       var body = s.slice(a + 1, b);
       if (body.indexOf("|") >= 0 && body.indexOf(" / ") >= 0) out += table(body.split(" / ").map(function (r) { return r.split("|"); }));
-      else if (body.indexOf("\u0003") >= 0 && !MARK.test(body)) out += body.split("\u0003").map(function (l) { return inline(l.trim()); }).filter(function (l) { return l; }).join("<br>");
+      else if (body.indexOf("\u0003") >= 0 && !MARK.test(body)) out += '<span style="display:block;margin:4px 0 4px 10px">' + cell(body) + "</span>";
       else out += eq(body);
       i = b + 1;
     }
