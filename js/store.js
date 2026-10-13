@@ -48,7 +48,7 @@
   function 옛법(id) { var e = (window.EXPL || {})[id]; return !!(e && e.old); }
   /* 문장·선지 끝에 붙은 시험지 쪽번호·안내문 찌꺼기(「22-15」「A형-36-21」「…시행 제28회 법무사 제1차 시험」「무역영어」)는
      보여 줄 때 떼어 낸다. 원천에서 떼면 문항 id 가 바뀌어 해설 연결이 끊기므로 화면층에서 처리(1013, 108문항) */
-  var 꼬리 = /\s+(A형-\d+-\d+|\d{2}-\d{1,2}|\d{4}년 \d{1,2}월 \d{1,2}일 시행 제\d+회 [^\n]*시험|무역영어|회계학\s*※[^\n]*)\s*$/;
+  var 꼬리 = /\s+(A형-\d+-\d+|\d{2}-\d{1,2}|\d{4}년 \d{1,2}월 \d{1,2}일 시행 제\d+회 [^\n]*시험|무역영어|민 ?법|상 ?법|회계학\s*※[^\n]*)\s*$/;
   function 꼬리떼기(t) { return typeof t === "string" ? t.replace(꼬리, "") : t; }
   Object.keys(QB).forEach(function (no) {
     QB[no].forEach(function (q) {
