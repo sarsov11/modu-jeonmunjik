@@ -46,6 +46,16 @@
   var 깨짐 = /\[(수식|그림|표)\]|[-�]/;   /* 자리표 + PDF 글꼴 기호가 깨진 사용자 영역 글자(1013, 89문항) */
   /* 출제 뒤 법이 바뀌어 지금 정답이 다른 문장(data/expl 의 old:1)도 내지 않는다 — 옛 법을 맞는 문장으로 외우게 된다(1013) */
   function 옛법(id) { var e = (window.EXPL || {})[id]; return !!(e && e.old); }
+  /* 문장·선지 끝에 붙은 시험지 쪽번호·안내문 찌꺼기(「22-15」「A형-36-21」「…시행 제28회 법무사 제1차 시험」「무역영어」)는
+     보여 줄 때 떼어 낸다. 원천에서 떼면 문항 id 가 바뀌어 해설 연결이 끊기므로 화면층에서 처리(1013, 108문항) */
+  var 꼬리 = /\s+(A형-\d+-\d+|\d{2}-\d{1,2}|\d{4}년 \d{1,2}월 \d{1,2}일 시행 제\d+회 [^\n]*시험|무역영어|회계학\s*※[^\n]*)\s*$/;
+  function 꼬리떼기(t) { return typeof t === "string" ? t.replace(꼬리, "") : t; }
+  Object.keys(QB).forEach(function (no) {
+    QB[no].forEach(function (q) {
+      q.t = 꼬리떼기(q.t);
+      if (q.mc) { q.mc.s = 꼬리떼기(q.mc.s); q.mc.d = 꼬리떼기(q.mc.d); if (q.mc.o) q.mc.o = q.mc.o.map(꼬리떼기); }
+    });
+  });
   Object.keys(QB).forEach(function (no) {
     QB[no] = QB[no].filter(function (q) { return !깨짐.test(q.t || "") && !(q.mc && 깨짐.test(JSON.stringify(q.mc))) && !옛법(q.i); });
     QB[no].forEach(function (q) { q.n = +no; ITEM[q.i] = q; });
@@ -236,8 +246,8 @@
     if (쓴 < 예산 - 60) focusNodes(12).slice(foci.length).forEach(function (n) { if (쓴 < 예산 - 60) 담기(n.no, 예산 - 40); });
     /* 두 문장 고르기 둘 — 오늘 쟁점에서, 안 푼 것 */
     var ps = [];
-    foci.forEach(function (n) { pairs(n.no).forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2) ps.push(p.id); }); });
-    if (ps.length < 2) PR.forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2) ps.push(p.id); });
+    foci.forEach(function (n) { pairs(n.no).forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2 && ps.indexOf(p.id) < 0) ps.push(p.id); }); });
+    if (ps.length < 2) PR.forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2 && ps.indexOf(p.id) < 0) ps.push(p.id); });   /* 같은 짝 두 번 금지(1013 허브 점검) */
     /* 순서 — 쟁점마다 [먼저 읽기 → 그 쟁점 새 문장 → 두 문장 고르기], 그다음 남는 쟁점 새 문장, 복습은 맨 끝.
        복습을 맨 앞에 두면 오늘 배울 것 없이 문제부터 나온다 */
     var seq = [], 쟁점별 = {};

@@ -300,6 +300,7 @@
     seq.forEach(function (x, i) {
       if (x.k === "learn") { 전체++; if (i <= pos) 몇째++; }
       if (x.k === "ox") 오늘[x.id] = 1;
+      if (x.k === "pair") 오늘[x.id] = 1;   /* 곧 낼 「둘 중 맞는 문장」은 읽기 카드에 미리 보이지 않게 */
     });
     if (!따로) for (var i = pos + 1; i < seq.length && seq[i].k !== "learn"; i++) if (seq[i].k !== "learn" && !seq[i].re) 문제수++;
     var lc = LC[(몇째 - 1 + LC.length) % LC.length];
@@ -317,7 +318,7 @@
       .sort(function (a, b) { return (b.y || 0) - (a.y || 0); }).slice(0, note ? 5 : 8);
     if (os.length) h += "<h3>시험에 맞는 문장으로 나온 기출</h3><div class=\"readlist\" style=\"margin-top:0\">" +
       os.map(function (q) { return '<p style="border-left-color:' + lc + '">' + RICH(q.t) + "<small>" + esc(GB.src(q)) + "</small></p>"; }).join("") + "</div>";
-    var ps = GB.pairs(s.n).filter(function (p) { return !오늘[p.o.i] && !오늘[p.x.i]; }).slice(0, 3);
+    var ps = GB.pairs(s.n).filter(function (p) { return !오늘[p.o.i] && !오늘[p.x.i] && !오늘[p.id]; }).slice(0, 3);
     if (ps.length) h += "<h3>시험이 바꿔 낸 곳</h3>" + ps.map(function (p) {
       var d = GB.markDiff(p.o.t, p.x.t);
       return '<div class="swap"><p><b style="color:var(--ok)">맞음</b> ' + d[0] + '</p><p><b style="color:var(--no)">틀림</b> ' + d[1] +
