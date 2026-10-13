@@ -44,10 +44,13 @@
   T.parts.forEach(function (p) { PART[p.no] = p; });
   /* 수식·그림이 빠진 채 수집된 문항(「[수식]」 자리표)은 복원 전까지 내지 않는다(1013, 128문항) */
   var 깨짐 = /\[(수식|그림|표)\]/;
+  /* 출제 뒤 법이 바뀌어 지금 정답이 다른 문장(data/expl 의 old:1)도 내지 않는다 — 옛 법을 맞는 문장으로 외우게 된다(1013) */
+  function 옛법(id) { var e = (window.EXPL || {})[id]; return !!(e && e.old); }
   Object.keys(QB).forEach(function (no) {
-    QB[no] = QB[no].filter(function (q) { return !깨짐.test(q.t || "") && !(q.mc && 깨짐.test(JSON.stringify(q.mc))); });
+    QB[no] = QB[no].filter(function (q) { return !깨짐.test(q.t || "") && !(q.mc && 깨짐.test(JSON.stringify(q.mc))) && !옛법(q.i); });
     QB[no].forEach(function (q) { q.n = +no; ITEM[q.i] = q; });
   });
+  PR = PR.filter(function (p) { return !옛법(p.o.i) && !옛법(p.x.i); });
   PR.forEach(function (p, i) { p.id = "P" + i; });
   var PR_BY = {};
   PR.forEach(function (p) { (PR_BY[p.n] = PR_BY[p.n] || []).push(p); });

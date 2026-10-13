@@ -234,7 +234,7 @@
           if (p.x.i !== q.i) 해설 += '<div class="pair"><div class="lab">비슷하게 낸 기출</div><p><b style="color:var(--ok)">맞음</b> ' + d2[0] + "</p></div>";
         }
         /* 법이 바뀐 문장 — 출제 때 정답과 지금 법이 다르다(data/expl/<과목>_old.json, old:1) */
-        if (ex && ex.old) 해설 = '<div class="pair" style="border-color:var(--warn)"><div class="lab" style="color:var(--warn)">법 개정 · 지금 기준</div><p>' + RICH(ex.ow) + "</p></div>" + 해설;
+        if (ex && ex.old) 해설 = '<div class="pair" style="border-color:var(--warn)"><div class="lab" style="color:var(--warn)">법 개정 · 지금 기준</div><p>' + RICH(ex.ow) + "</p></div>" + (ex.w ? 해설 : "");   /* 옛 법 기준 비교 기출은 지금 법과 어긋나니 뺀다 */
         if (해설) h += '<div class="expl open" id="expl"><div class="body">' + 해설 + "</div></div>";
         if (extra) h += '<p class="more">다음에 ' + esc(GB.node(q.n).name) + " 문제 1개 더</p>";
         h += "</div>";
