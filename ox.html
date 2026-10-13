@@ -213,7 +213,7 @@
           '<p class="ans">정답 <b>' + (mc ? "①②③④⑤"[+정답 - 1] : q.ox) + "</b></p>";
         /* 해설 — ① 틀린 문장 해설(data/expl: 바르게 고친 문장 + 이유) ② 같은 쟁점에서 낱말만 바꿔 낸 맞는 기출 ③ 가장 닮은 맞는 기출.
            판정 코칭 문장(「~는 헷갈리는 자리예요」 따위)은 뺐다(1013 대표님). 해설은 접지 않고 바로 보인다 */
-        var 해설 = "", ex = (window.EXPL || {})[q.i]; if (ex && ex.c === "하") ex = null;   /* 확신 낮은 해설은 내지 않는다 */
+        var 해설 = "", ex = (window.EXPL || {})[q.i]; if (ex && (ex.c === "하" || ex.c === "의심")) ex = null;   /* 확신 낮은 해설은 내지 않는다 */
         var p = pairOf(q.i);
         if (ex && ex.w && !mc && q.ox === "X") {
           if (ex.f) 해설 += '<div class="pair"><div class="lab">바른 문장</div><p>' + GB.markDiff(ex.f, q.t)[0] + "</p></div>";
