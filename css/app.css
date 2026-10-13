@@ -262,3 +262,6 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
 .fr>span:first-child{border-bottom:1px solid currentColor;padding:0 3px}
 .fr>span:last-child{padding:0 3px}
 .ov{text-decoration:overline}
+
+/* 문항 그림 — 원본 시험지에서 오린 그래프·도표(1013) */
+.qimg{display:block;max-width:100%;max-height:340px;margin:10px auto;border-radius:8px;background:#fff}

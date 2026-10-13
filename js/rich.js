@@ -84,6 +84,8 @@
       else { flush(); out.push(inline(l)); }
     });
     flush();
-    return out.join("\n").replace(/\n?(<div class="tblw">)/g, "$1").replace(/(<\/table><\/div>)\n?/g, "$1");
+    return out.join("\n").replace(/\n?(<div class="tblw">)/g, "$1").replace(/(<\/table><\/div>)\n?/g, "$1")
+      /* ③ 그림: [[그림:파일.png]] → data/img/파일.png (원본 시험지에서 오린 그래프·도표, 1013) */
+      .replace(/\[\[그림:([\w.\-가-힣]+\.(png|jpg|webp))\]\]/g, '<img class="qimg" src="data/img/$1" alt="문항 그림" loading="lazy">');
   };
 })();

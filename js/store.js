@@ -42,7 +42,10 @@
   });
   T.chs.forEach(function (c) { CH[c.key] = c; });
   T.parts.forEach(function (p) { PART[p.no] = p; });
+  /* 수식·그림이 빠진 채 수집된 문항(「[수식]」 자리표)은 복원 전까지 내지 않는다(1013, 128문항) */
+  var 깨짐 = /\[(수식|그림|표)\]/;
   Object.keys(QB).forEach(function (no) {
+    QB[no] = QB[no].filter(function (q) { return !깨짐.test(q.t || "") && !(q.mc && 깨짐.test(JSON.stringify(q.mc))); });
     QB[no].forEach(function (q) { q.n = +no; ITEM[q.i] = q; });
   });
   PR.forEach(function (p, i) { p.id = "P" + i; });
