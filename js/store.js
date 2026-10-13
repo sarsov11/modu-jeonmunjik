@@ -43,7 +43,7 @@
   T.chs.forEach(function (c) { CH[c.key] = c; });
   T.parts.forEach(function (p) { PART[p.no] = p; });
   /* 수식·그림이 빠진 채 수집된 문항(「[수식]」 자리표)은 복원 전까지 내지 않는다(1013, 128문항) */
-  var 깨짐 = /\[(수식|그림|표)\]/;
+  var 깨짐 = /\[(수식|그림|표)\]|[-�]/;   /* 자리표 + PDF 글꼴 기호가 깨진 사용자 영역 글자(1013, 89문항) */
   /* 출제 뒤 법이 바뀌어 지금 정답이 다른 문장(data/expl 의 old:1)도 내지 않는다 — 옛 법을 맞는 문장으로 외우게 된다(1013) */
   function 옛법(id) { var e = (window.EXPL || {})[id]; return !!(e && e.old); }
   Object.keys(QB).forEach(function (no) {
