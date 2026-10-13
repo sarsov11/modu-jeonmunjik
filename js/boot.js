@@ -18,7 +18,7 @@
   /* 쟁점 요점 정리(data/notes/<id>.js → window.NOTES) — 오늘 공부 첫머리 「먼저 읽기」에 쓴다. 있는 과목만 */
   /* 아래 두 줄은 해설싣기.py 가 고쳐 쓴다 — 손으로 고치지 말 것 */
   var NOTED = {"nm_labor1": "825639", "nm_labor2": "42ae8e"};
-  var EXPLED = {"bm_1": "5379ae", "bm_2": "e23bcb", "bm_3": "68f3ec", "bm_4": "ca2377", "cp_acct": "f39e3e", "cp_biz": "006e99", "cp_comm": "8cb5eb", "cp_econ": "c6adef", "cp_tax": "9255f9", "gs_acct": "c6c2f6", "gs_eng": "092a66", "gs_law": "95dca1", "gs_tax": "db373b", "nm_biz": "167b8e", "nm_civil": "9cd7f2", "nm_econ": "3eddac", "nm_labor1": "3e11f5", "nm_labor2": "96121e", "nm_social": "9cab57", "pt_civil": "17e8d4", "pt_iplaw": "777228", "pt_natsci": "c7b932", "sm_acct": "4e5884", "sm_admin": "b1bf84", "sm_civil": "94ec73", "sm_comm": "70a876", "sm_fin": "44ea78", "sm_tax": "ba7eae"};
+  var EXPLED = {"bm_1": "afe57d", "bm_2": "241f52", "bm_3": "ef4a91", "bm_4": "747640", "cp_acct": "f39e3e", "cp_biz": "cf039e", "cp_comm": "8cb5eb", "cp_econ": "c6adef", "cp_tax": "9255f9", "gs_acct": "c6c2f6", "gs_eng": "092a66", "gs_law": "c5585e", "gs_tax": "72d3f3", "nm_biz": "3d212d", "nm_civil": "9e6452", "nm_econ": "3eddac", "nm_labor1": "3e11f5", "nm_labor2": "96121e", "nm_social": "9cab57", "pt_civil": "17e8d4", "pt_iplaw": "777228", "pt_natsci": "c7b932", "sm_acct": "4e5884", "sm_admin": "b1bf84", "sm_civil": "94ec73", "sm_comm": "70a876", "sm_fin": "44ea78", "sm_tax": "ba7eae"};
   if (cur && NOTED[cur]) document.write('<script src="data/notes/' + cur + '.js?v=' + NOTED[cur] + '"><\/script>');
   /* 틀린 문장 해설(data/expl/<id>.js → window.EXPL: 문장 id → {f 바른 문장, w 이유}) */
   if (cur && EXPLED[cur]) document.write('<script src="data/expl/' + cur + '.js?v=' + EXPLED[cur] + '"><\/script>');
