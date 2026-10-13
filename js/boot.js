@@ -15,4 +15,7 @@
   }
   window.JG_CUR = cur;
   if (cur) document.write('<script src="data/' + cur + '.js?v=' + (R[cur].v || "") + '"><\/script>');
+  /* 쟁점 요점 정리(data/notes/<id>.js → window.NOTES) — 오늘 공부 첫머리 「먼저 읽기」에 쓴다. 있는 과목만 */
+  var NOTED = { nm_labor1: 1, nm_labor2: 1 };
+  if (cur && NOTED[cur]) document.write('<script src="data/notes/' + cur + '.js?v=1013"><\/script>');
 })();

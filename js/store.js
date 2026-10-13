@@ -8,7 +8,7 @@
      · 학생에게 고르게 하지 않는다. 홈은 「오늘 할 것」 하나.
      · 분량은 문항 수가 아니라 **시간**으로 말한다(하루 10·15·20·30분).
      · 판정은 확신도 × 정오답(judge.js). 확신도는 답보다 먼저 묻는다.
-     · 되돌리기(간격 복습)가 새 문장보다 먼저다.
+     · 복습(간격 복습)이 새 문장보다 먼저다.
    ═══════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -197,14 +197,19 @@
      ★ 하루에 한 번 정하고 저장한다. 새로고침마다 바뀌면 학생이 끝을 못 본다. */
   var SEC_PER = 20, SEC_MC = 60;
   function today() {
-    if (S.today && S.today.date === TODAY && S.today.min === minutes()) return decorate(S.today);
+    if (S.today && S.today.date === TODAY && S.today.min === minutes() && S.today.v === 2) return decorate(S.today);
     /* ★ 분량은 시간(초)으로 채운다 — 한 문장 O·X 약 20초, 기출 풀기(지문·4지선다) 약 60초(어림값, 실측 전).
        국어·영어처럼 기출 풀기만 있는 과목에서 15분에 45문항을 내면 끝을 못 본다(0924). */
     function 초(id) { var q = ITEM[id]; return q && q.mc ? SEC_MC : SEC_PER; }
     var 예산 = minutes() * 60, 쓴 = 0;
+    /* ★ 먼저 읽고 푼다(1013 대표님 「공부한 것 하나 없이 OX 부터 갈기면 어떡하냐」).
+       오늘 쟁점마다 첫머리에 「먼저 읽기」(요점 정리 + 맞는 기출 문장 + 바뀌어 나온 곳) 한 장. 쟁점당 약 3분(요점 없으면 2분) */
+    var NT = window.NOTES || {};
+    function 읽기초(no) { return NT[String(no)] ? 180 : 120; }
+    var foci = focusNodes(minutes() >= 25 ? 3 : 2), fresh = [], 본 = {};
+    foci.forEach(function (n) { 쓴 += 읽기초(n.no); });
     var due = [];
     dueList().forEach(function (id) { if (쓴 + 초(id) <= 예산 * 0.5) { due.push(id); 쓴 += 초(id); } });
-    var foci = focusNodes(3), fresh = [], 본 = {};
     function 담기(no, 한도) {
       freshOf(no, 60).some(function (q) {
         if (쓴 + 초(q.i) > 한도 || 본[q.i]) return 쓴 + SEC_PER > 한도;
@@ -213,19 +218,27 @@
     }
     var 몫 = (예산 - 40 - 쓴) / Math.max(1, foci.length);   /* 짝 둘 몫 40초는 남긴다 */
     foci.forEach(function (n, i) { 담기(n.no, 쓴 + 몫); });
-    if (쓴 < 예산 - 60) focusNodes(12).slice(3).forEach(function (n) { if (쓴 < 예산 - 60) 담기(n.no, 예산 - 40); });
-    /* 헷갈리는 짝 둘 — 오늘 쟁점에서, 안 푼 것 */
+    if (쓴 < 예산 - 60) focusNodes(12).slice(foci.length).forEach(function (n) { if (쓴 < 예산 - 60) 담기(n.no, 예산 - 40); });
+    /* 두 문장 고르기 둘 — 오늘 쟁점에서, 안 푼 것 */
     var ps = [];
     foci.forEach(function (n) { pairs(n.no).forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2) ps.push(p.id); }); });
     if (ps.length < 2) PR.forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2) ps.push(p.id); });
-    /* 순서 — 복습 먼저, 새 문장 중간중간에 짝 */
-    var seq = due.map(function (id) { return { k: "ox", id: id, re: 1 }; });
-    fresh.forEach(function (id, i) {
-      seq.push({ k: "ox", id: id });
-      if (ps.length && (i === Math.floor(fresh.length / 3) || i === Math.floor(fresh.length * 2 / 3))) seq.push({ k: "pair", id: ps.shift() });
+    /* 순서 — 쟁점마다 [먼저 읽기 → 그 쟁점 새 문장 → 두 문장 고르기], 그다음 남는 쟁점 새 문장, 복습은 맨 끝.
+       복습을 맨 앞에 두면 오늘 배울 것 없이 문제부터 나온다 */
+    var seq = [], 쟁점별 = {};
+    fresh.forEach(function (id) { var no = ITEM[id].n; (쟁점별[no] = 쟁점별[no] || []).push(id); });
+    foci.forEach(function (n) {
+      seq.push({ k: "learn", n: n.no });
+      (쟁점별[n.no] || []).forEach(function (id) { seq.push({ k: "ox", id: id }); });
+      delete 쟁점별[n.no];
+      var pi = -1;
+      ps.some(function (id, i) { if (PR[+id.slice(1)].n === n.no) { pi = i; return true; } return false; });
+      if (pi >= 0) seq.push({ k: "pair", id: ps.splice(pi, 1)[0] });
     });
+    Object.keys(쟁점별).forEach(function (no) { 쟁점별[no].forEach(function (id) { seq.push({ k: "ox", id: id }); }); });
     ps.forEach(function (id) { seq.push({ k: "pair", id: id }); });
-    S.today = { date: TODAY, min: minutes(), seq: seq, foci: foci.map(function (n) { return n.no; }), pos: 0 };
+    due.forEach(function (id) { seq.push({ k: "ox", id: id, re: 1 }); });
+    S.today = { v: 2, date: TODAY, min: minutes(), seq: seq, foci: foci.map(function (n) { return n.no; }), pos: 0 };
     save();
     return decorate(S.today);
   }
@@ -234,6 +247,7 @@
     t.seq.forEach(function (s) { if (s.done) done++; });
     return { date: t.date, min: t.min, seq: t.seq, foci: t.foci.map(function (no) { return NODE[no]; }),
              total: t.seq.length, done: done, re: t.seq.filter(function (s) { return s.re; }).length,
+             learn: t.seq.filter(function (s) { return s.k === "learn"; }).length,
              finished: done >= t.seq.length };
   }
   function markToday(i) { if (S.today && S.today.seq[i]) { S.today.seq[i].done = 1; save(); } }

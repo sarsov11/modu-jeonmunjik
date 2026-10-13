@@ -17,7 +17,7 @@
   --no:#E5202E; --no-soft:rgba(229,32,46,.07);
   --warn:#C2410C; --warn-soft:rgba(194,65,12,.09);      /* 오개념(확신 오답) — 빨강과 다르게 */
   --mark:rgba(229,32,46,.16);
-  --lv0:#EFF1F4; --lv1:#F7C9CD; --lv2:#EE7A83; --lv3:#E5202E;   /* 성취 계단 — 진할수록 잘한 것 */
+  --lv0:#EFF1F4; --lv1:#A5B4FC; --lv2:#6366F1; --lv3:#10B981;   /* 성취 계단 — 진할수록 잘한 것 */
   --font:"Pretendard Variable",Pretendard,"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
   --r1:6px; --r2:10px; --r3:14px;
   --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px;
@@ -46,7 +46,7 @@
   --no:#FF4D57; --no-soft:rgba(255,77,87,.13);
   --warn:#F59E0B; --warn-soft:rgba(245,158,11,.14);
   --mark:rgba(255,77,87,.28);
-  --lv0:#22272E; --lv1:#5A2A30; --lv2:#A8323B; --lv3:#FF4D57;
+  --lv0:#22272E; --lv1:#4F46E5; --lv2:#818CF8; --lv3:#34D399;
   --nav-bg:rgba(11,13,17,.9);
   --shadow:0 1px 2px rgba(0,0,0,.6), 0 18px 46px -22px rgba(0,0,0,.9);
 }
@@ -184,18 +184,22 @@ mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
   --title:var(--font); --kr:var(--font); --mono:var(--font); --tw:900; --tls:-.05em; --s6:64px;
   --red:var(--cta); --red-2:var(--cta-2); --red-soft:var(--cta-soft); --red-line:var(--cta-line);
   --stage:#FFFFFF; --stage-2:#FFFFFF; --stage-line:#DEE1E6; --stage-ink:#111419; --stage-ink-2:#6B717A;
-  --star:#E6E8EC; --neb-1:rgba(229,32,46,.07); --neb-2:rgba(17,20,25,.03); --core-glow:#E5202E;
-  --fam-geo:#E5202E; --fam-soc:#8E1420; --fam-eth:#FF6A74; --mint:#B0353A;
+  --star:#DCE3F0; --neb-1:rgba(99,102,241,.09); --neb-2:rgba(16,185,129,.07); --core-glow:#6366F1;
+  --fam-geo:#2563EB; --fam-soc:#10B981; --fam-eth:#8B5CF6; --mint:#059669;
+  /* 편 색 — 순서대로. 빨강 한 계열(갈색·자주) 금지(1013 대표님) */
+  --pt1:#2563EB; --pt2:#10B981; --pt3:#8B5CF6; --pt4:#F97316; --pt5:#EC4899; --pt6:#06B6D4; --gold:#F5B70A;
 }
 :root[data-skin="jelly"]{
   --stage:#FFFFFF; --stage-2:#FFF7FA; --stage-line:#F6D3E0; --stage-ink:#2A1420; --stage-ink-2:#6A4659;
-  --star:#F6D3E0; --neb-1:rgba(232,69,127,.07); --neb-2:rgba(42,20,32,.03); --core-glow:#E8457F;
-  --fam-geo:#E8457F; --fam-soc:#9D174D; --fam-eth:#F472B6; --mint:#BE185D;
+  --star:#F6D3E0; --neb-1:rgba(232,69,127,.08); --neb-2:rgba(139,92,246,.07); --core-glow:#E8457F;
+  --fam-geo:#E8457F; --fam-soc:#8B5CF6; --fam-eth:#06B6D4; --mint:#10B981;
+  --pt1:#E8457F; --pt2:#8B5CF6; --pt3:#06B6D4; --pt4:#10B981; --pt5:#F59E0B; --pt6:#3B82F6; --gold:#F5B70A;
 }
 :root[data-skin="night"]{
   --stage:#070B14; --stage-2:#0C1424; --stage-line:#2B3D5C; --stage-ink:#DEE8F8; --stage-ink-2:#A9BEDF;
   --star:#CFE0FF; --neb-1:rgba(66,110,190,.18); --neb-2:rgba(150,80,200,.14); --core-glow:#4E7BD6;
   --fam-geo:#4FC3E8; --fam-soc:#F5CC4A; --fam-eth:#B48CF2; --mint:#2FE0CE;
+  --pt1:#60A5FA; --pt2:#34D399; --pt3:#A78BFA; --pt4:#FB923C; --pt5:#F472B6; --pt6:#22D3EE; --gold:#FACC15;
 }
 
 /* 아래 메뉴는 풀이 화면에도 둔다(선호대장 1차 — 반드시 있어야 함). 「다음」이 메뉴에 깔리지 않게 아래 여백을 넉넉히 */

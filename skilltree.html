@@ -241,11 +241,12 @@
   var PC={};
   var GOLD,STAR,SLINE,SINK,SINK2,SBG,SBG2,CORE;
   function paint(){
-    T.parts.forEach(function(p){
-      var hex=cv(p.color)||"#4FC3E8", c=hsl(hex);
+    /* 편 색은 순서대로 --pt1~6(파랑·초록·보라·주황·분홍·청록). 옛 --fam-* 는 빨강 한 계열이라 안 쓴다(1013 대표님 「갈색 그만, 다채롭게」) */
+    T.parts.forEach(function(p,i){
+      var hex=cv("--pt"+(i%6+1))||"#2563EB", c=hsl(hex);
       PC[p.no]={hex:hex,h:c[0],s:c[1]};
     });
-    GOLD=cv("--fam-soc")||"#FFD86B"; STAR=cv("--star")||"#CFE0FF";
+    GOLD=cv("--gold")||"#F5B70A"; STAR=cv("--star")||"#CFE0FF";
     CORE=cv("--core-glow")||"#4E7BD6"; SLINE=cv("--stage-line")||"#2B3D5C";
     SINK=cv("--stage-ink")||"#DEE8F8"; SINK2=cv("--stage-ink-2")||"#A9BEDF";
     SBG=cv("--stage")||"#070B14"; SBG2=cv("--stage-2")||"#0C1424";
@@ -259,11 +260,21 @@
     S:{n:"S",l:80,pl:38,m:1,pm:1,   label:"성취도 80 이상"},
     A:{n:"A",l:65,pl:52,m:1,pm:.98, label:"60 이상"},
     B:{n:"B",l:52,pl:66,m:.94,pm:.86,label:"30 이상"},
-    C:{n:"C",l:40,pl:78,m:.86,pm:.70,label:"30 미만"},
-    L:{n:"–",l:36,pl:87,m:.44,pm:.30,label:"아직 안 풂"}
+    C:{n:"C",l:44,pl:58,m:.86,pm:.85,label:"30 미만"},
+    L:{n:"–",l:46,pl:64,m:.7,pm:.82,label:"아직 안 풂"}
   };
-  function tone(part,t,dl){
-    var F=PC[part]||{h:200,s:60}, k=TIER[t], pp=paper(), d=(dl||0);
+  /* 쟁점 원은 하나하나 다른 색 — 같은 편 안에서도 무지개로 돈다 */
+  var NODEPAL=["#2563EB","#10B981","#8B5CF6","#F97316","#EC4899","#06B6D4","#84CC16","#F43F5E","#6366F1","#14B8A6","#EAB308","#A855F7"];
+  var NPC={};
+  function nodeHue(no){
+    if(NPC[no]) return NPC[no];
+    var n=GB.node(no), list=GB.nodesOf(n.chkey), i=list.map(function(x){return x.no;}).indexOf(no);
+    var pi=T.parts.map(function(p){return p.no;}).indexOf(n.part);
+    var c=hsl(NODEPAL[((i<0?0:i)+pi*5)%NODEPAL.length]);
+    return (NPC[no]={h:c[0],s:c[1]});
+  }
+  function tone(part,t,dl,F){
+    F=F||PC[part]||{h:200,s:60}; var k=TIER[t], pp=paper(), d=(dl||0);
     return "hsl("+F.h+" "+Math.round(F.s*(pp?k.pm:k.m))+"% "+(pp?k.pl-d:k.l+d)+"%)";
   }
   function tierOf(a,played){ return !played?"L":a>=80?"S":a>=60?"A":a>=30?"B":"C"; }
@@ -329,6 +340,7 @@
         opacity:((paper()?(p?.2:.1):(p?.28:.14))*glowK()).toFixed(3),
         filter:"url(#soft)","pointer-events":"none"},g);
     el("circle",{class:"nb",cx:x,cy:y,r:r,fill:SBG2,"fill-opacity":1},g);
+    el("circle",{class:"nb",cx:x,cy:y,r:r,fill:col,"fill-opacity":paper()?.16:.2,"pointer-events":"none"},g);
     if(p>0){
       var id="fill"+(++uid);
       var cp=el("clipPath",{id:id},g);
@@ -440,6 +452,7 @@
   function chNodes(k){ return GB.nodesOf(k); }
 
   var level=0, part=null, chk=null, busy=false;
+  var FLAT=T.parts.every(function(p){ return GB.chsOf(p.no).length===1; }) && T.nodes.length<=20;
 
   /* ══ 층 0 — 과목 ══ */
   function drawAll(g0){
@@ -461,7 +474,7 @@
       gp.setAttribute("aria-label",p.name+" 열기 · 성취도 "+ps.achieve+"퍼센트");
       /* 편 이름은 길다(국민의 권리와 의무). 원 안에 넣으면 잘려서 바깥 이름표와 겹쳐 보인다 —
          원 안에는 편 번호만 두고 이름은 바깥 이름표에만 쓴다(2026-08-31 실측). */
-      txt(gp,"제"+p.no+"편",{x:x,y:y+L.fName*.42,"text-anchor":"middle",fill:SINK,
+      txt(gp,p.name.length<=5?p.name:"제"+p.no+"편",{x:x,y:y+L.fName*.42,"text-anchor":"middle",fill:SINK,
         "font-size":Math.round(L.fName*1.15),"font-weight":900,
         "font-family":cv("--title")||"Noto Sans KR","pointer-events":"none"});
       /* 이름표는 반드시 바깥쪽으로 — 안쪽에 놓으면 가운데 코어와 겹친다(2026-08-31 실측) */
@@ -550,25 +563,39 @@
   }
 
   /* ══ 층 2 — 장 안의 쟁점 ══ */
-  function drawCh(g0,key){
-    var L=layout(), c=GB.ch(key), hue=PC[c.part].hex;
-    sky(g0,key);
+  /* flat — 편마다 장이 하나고 쟁점이 20개 이하면 첫 화면에서 쟁점을 전부 바로 보여 준다(1013 대표님 「스킬트리 이상함」:
+     편 원 2개 → 같은 이름 장 원 1개 → 쟁점, 세 번 눌러야 쟁점이 나왔다). 쟁점 원은 하나하나 다른 색, 바깥 띠는 편 색 */
+  function drawCh(g0,key,flat){
+    var L=layout(), c=flat?{part:T.parts[0].no,name:T.subject}:GB.ch(key), hue=flat?CORE:PC[c.part].hex;
+    sky(g0,flat?"flat":key);
     var g=el("g",{class:"ink"},g0);
-    var list=chNodes(key), m=list.length;
+    var list=flat?T.nodes.slice():chNodes(key), m=list.length;
     var RX=Math.round(L.W*(m>9?.335:.30)), RY=Math.round(L.H*(m>9?.335:.30));
     el("ellipse",{cx:L.CX,cy:L.CY,rx:RX,ry:RY,fill:"none",stroke:SLINE,"stroke-width":1,opacity:".6"},g);
     var link=el("g",{},g), nodes=el("g",{},g), labs=el("g",{},g);
     var maxV=Math.max.apply(null,list.map(function(n){ return n.vol; }))||1;
     var two=(m>=9);
+    if(flat){
+      /* 편 띠 — 그 편 쟁점들이 놓인 각도만큼 바깥에 굵은 호 */
+      T.parts.forEach(function(p){
+        var ks=list.map(function(n,k){ return n.part===p.no?k:-1; }).filter(function(k){ return k>=0; });
+        if(!ks.length) return;
+        var step=360/m, a0=-90+ks[0]*step-step*.42, a1=-90+ks[ks.length-1]*step+step*.42;
+        var R=.62, pts=[];
+        for(var t=0;t<=24;t++){ var a=rad(a0+(a1-a0)*t/24); pts.push((L.CX+RX*R*Math.cos(a)).toFixed(1)+","+(L.CY+RY*R*Math.sin(a)).toFixed(1)); }
+        el("polyline",{points:pts.join(" "),fill:"none",stroke:PC[p.no].hex,"stroke-width":Math.round(6*L.k+2),
+          "stroke-linecap":"round",opacity:".55"},g);
+      });
+    }
     list.forEach(function(n,k){
       var a=-90+k*(360/m);
       var f2=(two&&(k%2===1))?1.30:1;
       var x=L.CX+RX*f2*Math.cos(rad(a)), y=L.CY+RY*f2*Math.sin(rad(a));
       var st=GB.nodeStat(n.no), tier=tierOf(st.achieve,st.solved>0), lock=(tier==="L");
-      el("line",{x1:L.CX,y1:L.CY,x2:x,y2:y,stroke:lock?SLINE:hue,"stroke-width":lock?.9:1.4,
+      el("line",{x1:L.CX,y1:L.CY,x2:x,y2:y,stroke:lock?tone(n.part,"B",0,nodeHue(n.no)):tone(n.part,"A",0,nodeHue(n.no)),"stroke-width":lock?.9:1.4,
         opacity:lock?".45":".34","stroke-dasharray":lock?"3 5":"none"},link);
       var rr=Math.round((14+Math.sqrt(n.vol/maxV)*15)*L.k+8);
-      var gp=orb(nodes,x,y,rr,tone(c.part,tier),st.achieve,{});
+      var nh=nodeHue(n.no), gp=orb(nodes,x,y,rr,tone(n.part,tier,0,nh),st.achieve,{});
       gp.setAttribute("aria-label",n.title+" 열기 · 성취도 "+st.achieve+"퍼센트");
       var ca=Math.cos(rad(a)), sa=Math.sin(rad(a)), off=rr+13;
       var anc=ca>.3?"start":ca<-.3?"end":"middle";
@@ -577,9 +604,12 @@
       var lg=el("g",{class:"lblg"},labs);
       lg.dataset.cx=x; lg.dataset.cy=y; lg.dataset.r=rr;
       var short=n.title.length>22?n.title.slice(0,21)+"…":n.title;
+      /* 폰에서 쟁점이 다 보이는 판은 이름을 줄인다 — 긴 이름표 때문에 판 전체가 작게 줄어 글자가 안 읽혔다(1013) */
+      var tiny=flat&&L.W<640;
+      if(tiny){ short=n.title.split(/[·(]/)[0]; if(short.length>7) short=short.slice(0,7)+"…"; }
       var l1=txt(lg,short,{x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,
         fill:lock?SINK2:SINK,"font-size":L.fName,"font-weight":700,"font-family":cv("--kr")});
-      var l2=txt(lg,n.vol+"쪽 · 기출 "+n.q+(lock?"":" · "+st.achieve+"%"),
+      var l2=txt(lg,tiny?"":n.vol+"쪽 · 기출 "+n.q+(lock?"":" · "+st.achieve+"%"),
         {x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
@@ -590,10 +620,14 @@
       gp.addEventListener("keydown",function(e){
         if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(); } });
     });
+    if(flat){
+      coreOrb(g,hue,T.subject,m+"쟁점 · 기출 "+GB.num(ALL.n)+" · "+ALL.achieve+"%",null);
+      unstack(g,L.CX,L.CY); return;
+    }
     var st=GB.chStat(key);
     coreOrb(g,hue,c.name,m+"쟁점 · 성취도 "+st.achieve+"%",
       function(){ if(!busy) goPart(c.part,L.CX,L.CY); });
-    var back=txt(g,"↑ 눌러서 "+GB.part(c.part).name+" 로",{x:L.CX,y:L.CY+L.rCore+22,
+    var back=txt(g,oneCh(c.part)?"↑ 눌러서 전체로":"↑ 눌러서 "+GB.part(c.part).name+" 로",{x:L.CX,y:L.CY+L.rCore+22,
       "text-anchor":"middle",fill:SINK2,"font-size":Math.round(L.fSub+1),"font-weight":600,
       "font-family":cv("--kr"),opacity:".85"});
     back.style.cursor="pointer";
@@ -627,8 +661,11 @@
       g.style.transition=""; busy=false;
     },620);
   }
+  /* 편 안에 장이 하나뿐이면(지금 과목 전부) 장 층은 같은 이름을 한 번 더 보여 줄 뿐이다 — 건너뛴다(1013) */
+  function oneCh(p){ var c=GB.chsOf(p); return c.length===1?c[0]:null; }
   function goPart(p,ox,oy){
-    var back=(level===2);
+    var back=(level===2), only=oneCh(p);
+    if(only){ if(back) return goAll(); return goCh(only.key,ox,oy); }
     part=p; chk=null; level=1;
     swap(function(g){ drawPart(g,p); },ox,oy,back?-1:1);
     head(); drawList(); legend();
@@ -640,7 +677,7 @@
   }
   function goAll(){
     part=null; chk=null; level=0;
-    swap(function(g){ drawAll(g); },LAY.CX,LAY.CY,-1);
+    swap(function(g){ FLAT?drawCh(g,null,true):drawAll(g); },LAY.CX,LAY.CY,-1);
     head(); drawList(); legend();
   }
 
@@ -650,14 +687,13 @@
     if(level===0){
       c.innerHTML='<span class="swapin">'+esc(T.subject)+'</span>';
       document.getElementById("lede").textContent=
-        "시험 범위를 편·장·쟁점으로 갈라 놓았습니다 — 편 "+T.stat.parts+" · 장 "+T.stat.chs+
-        " · 쟁점 "+T.stat.nodes+"개. 붙은 기출 선지 "+GB.num(ALL.n)+"개";
+        T.parts.map(function(p){return p.name;}).join(" · ")+" — 쟁점 "+T.stat.nodes+"개, 기출 선지 "+GB.num(ALL.n)+"개";
       document.getElementById("plateTitle").textContent=T.subject;
       document.getElementById("plateSub").textContent=GB.track().name;
     }else if(level===2&&chk){
       var ch=GB.ch(chk), st=GB.chStat(chk);
       c.innerHTML='<button class="up" id="upbtn">'+esc(T.subject)+'</button><span class="sep">›</span>'+
-        '<button class="up" id="uppart">'+esc(GB.part(ch.part).name)+'</button><span class="sep">›</span>'+
+        (oneCh(ch.part)?'<span id="uppart"></span>':'<button class="up" id="uppart">'+esc(GB.part(ch.part).name)+'</button><span class="sep">›</span>')+
         '<em class="swapin" style="font-style:normal;color:var(--red-2)">'+esc(ch.name)+'</em>';
       document.getElementById("upbtn").onclick=function(){ if(!busy) goAll(); };
       document.getElementById("uppart").onclick=function(){ if(!busy) goPart(ch.part,LAY.CX,LAY.CY); };
@@ -680,7 +716,7 @@
     }
     var b=document.getElementById("backbtn");
     b.hidden=(level===0);
-    b.textContent=(level===2&&part)?("← "+GB.part(part).name):"← 전체";
+    b.textContent=(level===2&&part&&!oneCh(part))?("← "+GB.part(part).name):"← 전체";
     document.querySelectorAll("[data-part]").forEach(function(x){
       var on=(+x.dataset.part===part);
       x.setAttribute("aria-selected",on);
@@ -763,7 +799,7 @@
     document.getElementById("pkEyebrow").textContent=GB.ch(n.chkey).name;
     var tc=document.getElementById("pkTier");
     tc.textContent=tier==="L"?"미착수":TIER[tier].n;
-    tc.style.background=tier==="S"?GOLD:tone(n.part,tier);
+    tc.style.background=tier==="S"?GOLD:tone(n.part,tier,0,nodeHue(n.no));
     tc.style.color=(tier==="C"||tier==="L")?SBG2:SBG;
     document.getElementById("pkTitle").textContent=n.title;
     document.getElementById("pkQ").textContent=
@@ -827,7 +863,7 @@
   /* ══ 폰용 목록 ══ */
   function drawList(){
     var host=document.getElementById("treelist");
-    if(level===0){
+    if(level===0&&!FLAT){
       host.innerHTML=T.parts.map(function(p){
         var st=GB.partStat(p.no);
         return '<div class="grp"><div class="gh">'+
@@ -841,7 +877,7 @@
           }).join("")+'</div>';
       }).join("");
     }else{
-      var chs=(level===2&&chk)?[GB.ch(chk)]:GB.chsOf(part);
+      var chs=(level===2&&chk)?[GB.ch(chk)]:level===0?T.chs:GB.chsOf(part);
       host.innerHTML=chs.map(function(c){
         return '<div class="grp"><div class="gh">'+
           '<span class="cd" style="color:'+PC[c.part].hex+'">'+c.no+'</span>'+
@@ -849,7 +885,7 @@
           chNodes(c.key).map(function(n){
             var st=GB.nodeStat(n.no), tier=tierOf(st.achieve,st.solved>0);
             return '<div class="mrow" data-node="'+n.no+'">'+
-              '<span class="bul" style="background:'+(tier==="S"?GOLD:tone(c.part,tier,paper()?14:0))+
+              '<span class="bul" style="background:'+(tier==="S"?GOLD:tone(c.part,tier==="L"?"L":"A",paper()?6:0,nodeHue(n.no)))+
               ';opacity:'+(tier==="L"?.55:1)+'"></span>'+
               '<span class="nm">'+esc(n.title)+'</span>'+
               '<span class="pc">'+n.vol+'쪽 · 기출 '+n.q+'</span></div>';
@@ -880,13 +916,9 @@
   function note(){
     var s=T.stat;
     document.getElementById("note").innerHTML=
-      '<b>이 트리는 '+esc(T.subject)+' 시험 범위를 편 '+s.parts+' · 장 '+s.chs+' · 쟁점 '+s.nodes+
-      '개로 갈라 놓은 것</b>입니다. 장(중영역)은 편 안에서 쟁점을 묶기 위해 부여한 층입니다.<br>'+
-      '<b>원 크기는 기출 수가 아니라 학습 분량</b>입니다. 기출 수로 재면 최근 몇 해에 몰린 쟁점이 '+
-      '실제보다 커지고, 아직 선지가 안 붙은 쟁점은 점으로 사라집니다.<br>'+
-      '<b>기출 선지 '+GB.num(s.q)+'개</b>는 공개된 기출에서 뽑아 쟁점에 붙였습니다. O·X 판정은 '+
-      '그 시험의 정답표 그대로입니다.<br>'+
-      '성취도는 이 브라우저에 쌓인 학습 기록입니다 — 얼마나 풀었나 55, 얼마나 맞았나 45로 세고, 맞힌 비율은 열 문장을 풀 때까지 덜 셉니다.';
+      '<b>'+esc(T.subject)+' 쟁점 '+s.nodes+'개 · 기출 선지 '+GB.num(s.q)+'개.</b> 선지는 공개 기출에서 뽑아 쟁점에 붙였고, O·X 정답은 그 시험 정답표를 따른다.<br>'+
+      '<b>원 크기</b>는 학습 분량(쪽)이다. 기출 수로 크기를 정하면 최근 몇 해에 몰린 쟁점만 커진다.<br>'+
+      '<b>원 색</b>은 쟁점마다 다르고, 안이 차오를수록 성취도가 높다. 성취도 = 푼 비율 55 + 맞힌 비율 45(열 문장 전에는 맞힌 비율을 덜 반영). 기록은 이 기기에만 남는다.';
   }
 
   /* ══ 시작 ══ */
@@ -896,7 +928,7 @@
     while(svg.firstChild) svg.removeChild(svg.firstChild);
     defsOf(svg);
     var g=el("g",{class:"layer"},svg);
-    if(level===0) drawAll(g);
+    if(level===0) (FLAT?drawCh(g,null,true):drawAll(g));
     else if(level===2&&chk) drawCh(g,chk);
     else drawPart(g,part);
     fitView(g);
@@ -912,7 +944,7 @@
       boot(); head();
     },160);
   });
-  segs();
+  paint(); segs();
   var QS=new URLSearchParams(location.search);
   if(QS.get("ch")&&GB.ch(QS.get("ch"))){ chk=QS.get("ch"); part=GB.ch(chk).part; level=2; }
   else if(QS.get("part")&&GB.part(+QS.get("part"))){ part=+QS.get("part"); level=1; }
@@ -932,8 +964,8 @@
 <script>
 /* 첫 진입 안내(zzcoach.js, defer 라 load 뒤에 부른다). 한 번 보면 다시 안 뜬다 */
 window.addEventListener("load", function () { if (!window.ZZCOACH) return; ZZCOACH.run("modu-jeonmunjik.skilltree", [
-  { el: function () { var t = document.querySelector(".tabbar a"); if (t && t.offsetParent) return t; return document.querySelector(".navlinks a"); }, text: "홈에서 오늘 풀 문장을 바로 시작함" },
-  { el: function () { var l = document.querySelector("#treelist .mrow"); return (l && l.offsetParent) ? l : document.querySelector(".board"); }, text: "편, 장, 쟁점 순으로 들어가는 시험 범위 지도. 쟁점에서 기출 풀이를 시작함" },
+  { el: function () { var t = document.querySelector(".tabbar a"); if (t && t.offsetParent) return t; return document.querySelector(".navlinks a"); }, text: "오늘 공부 시작은 홈" },
+  { el: function () { var l = document.querySelector("#treelist .mrow"); return (l && l.offsetParent) ? l : document.querySelector(".board"); }, text: "시험 범위 전체. 원 하나가 쟁점 하나" },
   { el: "#legend", text: "원 색은 성취도. S 80 이상, A 60 이상, B 30 이상, C 30 미만, 안 푼 곳은 –. 원 크기는 학습 분량" }
 ], { delay: 900 }); });
 </script>

@@ -15,6 +15,8 @@
   .exam .d{font-size:44px;font-weight:900;letter-spacing:-.06em;line-height:1.05;margin-top:2px}
   .exam .d small{font-size:17px;color:var(--ink-3);font-weight:700;letter-spacing:-.02em;margin-left:8px}
   .todo{margin-top:18px;padding:22px 20px;border:1.5px solid var(--ink);border-radius:var(--r3);background:var(--surface);position:relative}
+  .todo{border:0;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,#2563EB,#8B5CF6 45%,#EC4899 75%,#F97316) border-box;border:2px solid transparent}
+  .todo .btn{background:linear-gradient(100deg,#2563EB,#7C3AED)}
   .todo h2{font-size:23px}
   .todo .t{font-size:15.5px;color:var(--ink-3);margin-top:4px}
   .todo ul{list-style:none;padding:0;margin:16px 0 18px;display:flex;flex-direction:column;gap:8px}
@@ -22,6 +24,14 @@
   .todo li b{min-width:52px;font-weight:900}
   .todo li span{color:var(--ink-2)}
   .todo .bar{margin-bottom:16px}
+  .plan{list-style:none;padding:0;margin:16px 0 18px;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+  .todo .plan li{display:block}
+  .todo .plan li b{min-width:0}
+  .plan li{position:relative;padding:10px 12px 10px 46px;border-radius:var(--r2);background:color-mix(in srgb,var(--c) 8%,var(--surface));counter-increment:s}
+  .plan li:before{content:counter(s);position:absolute;left:12px;top:10px;width:24px;height:24px;border-radius:50%;background:var(--c);color:#fff;
+    font-size:13px;font-weight:900;display:grid;place-items:center}
+  .plan li b{display:block;font-size:16px;font-weight:900;color:var(--c)}
+  .plan li span{font-size:14px;color:var(--ink-2)}
   .mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
   .mini div{padding:12px 10px;border:1px solid var(--line);border-radius:var(--r2);background:var(--surface)}
   .mini b{display:block;font-size:21px;font-weight:900;letter-spacing:-.04em}
@@ -90,12 +100,13 @@
         '<div style="margin-top:18px"><a class="btn block" href="ox.html?mode=hard">어려운 O·X</a></div>';
   } else {
     h = '<h2>' + (nm ? esc(nm) + ", " : "") + (t.done ? "이어서 " : "오늘 ") + t.min + "분</h2>" +
-        '<p class="t">약 ' + t.min + "분 · " + t.total + "개</p>" +
-        "<ul>" +
-        (t.re ? "<li><b class=\"num\">" + t.re + "개</b><span>되돌리기 — 틀렸거나 다시 볼 때가 된 것</span></li>" : "") +
-        "<li><b class=\"num\">" + newN + "개</b><span>새 문제 — " + esc(foci.join(" · ")) + "</span></li>" +
-        (prN ? "<li><b class=\"num\">" + prN + "개</b><span>헷갈리는 짝</span></li>" : "") +
-        "</ul>" +
+        '<p class="t">약 ' + t.min + "분 · 읽기 " + t.learn + "쟁점 · 문제 " + (t.total - t.learn) + "개</p>" +
+        "<ol class=\"plan\">" +
+        (t.learn ? "<li style=\"--c:#2563EB\"><b>먼저 읽기</b><span>" + esc(foci.join(" · ")) + " — 요점과 기출 맞는 문장</span></li>" : "") +
+        "<li style=\"--c:#10B981\"><b>새 문제 " + newN + "개</b><span>방금 읽은 쟁점 기출 O·X</span></li>" +
+        (prN ? "<li style=\"--c:#8B5CF6\"><b>둘 중 맞는 문장 " + prN + "개</b><span>한두 마디만 다른 기출 두 문장</span></li>" : "") +
+        (t.re ? "<li style=\"--c:#F97316\"><b>복습 " + t.re + "개</b><span>전에 틀린 문장, 다시 볼 날이 된 문장</span></li>" : "") +
+        "</ol>" +
         (t.done ? '<div class="bar"><i style="width:' + Math.round(t.done / t.total * 100) + '%"></i></div>' : "") +
         '<a class="btn block" href="ox.html">' + (t.done ? "이어서 · " + t.done + " / " + t.total : "시작") + "</a>";
   }
@@ -103,7 +114,7 @@
 
   /* 불꽃(연속) · 방패(등급) · 출석(주간 + 월간) — 선호대장 1차 */
   var FLAME = '<svg viewBox="0 0 24 24"><path fill="#F97316" d="M12 2c1 3.5 4.5 5.2 4.5 9.5A4.5 4.5 0 0 1 12 16a4.5 4.5 0 0 1-4.5-4.5c0-1.8.8-3.1 1.8-4.1.1 1.5.9 2.6 2 2.9C11 8 11.2 4.6 12 2z"/><path fill="#FDBA74" d="M12 22a6 6 0 0 1-6-6c0-2.3 1.2-4 2.6-5.3-.1 2.5 1.4 4.3 3.4 4.3s3.5-1.6 3.4-4.3C16.8 12 18 13.7 18 16a6 6 0 0 1-6 6z"/></svg>';
-  var SHIELD = ["#B7794B", "#9CA3AF", "#EAB308", "#22D3EE", "#60A5FA"];
+  var SHIELD = ["#F97316", "#9CA3AF", "#EAB308", "#22D3EE", "#60A5FA"];
   var tr2 = GB.tier();
   var shield = '<svg viewBox="0 0 34 38"><path d="M17 1 32 6v12c0 9.5-6.4 16.2-15 19C8.4 34.2 2 27.5 2 18V6z" fill="' + SHIELD[tr2.rank] + '"/><path d="M17 5 28 9v9c0 7.2-4.6 12.4-11 14.8C10.6 30.4 6 25.2 6 18V9z" fill="rgba(255,255,255,.28)"/></svg>';
   $("mini").innerHTML =
@@ -134,7 +145,7 @@
   $("alt").innerHTML =
     '<a class="row" href="strategy.html"><span class="t"><b>합격 전략</b><span>' + (GB.exam().pass === "rel" ? "상대평가 · 커트라인 + 3점 목표" : "절대평가 · 평균 60 · 과락 40") + ' · 쟁점 S·A·B·C</span></span><span class="go">›</span></a>' +
     '<a class="row" href="ox.html?mode=hard"><span class="t"><b>어려운 O·X</b><span>한두 마디만 바꾼 함정 문장</span></span><span class="go">›</span></a>' +
-    '<a class="row" href="ox.html?mode=pair"><span class="t"><b>헷갈리는 짝</b><span>닮은 두 기출 문장 중 맞는 것 고르기</span></span><span class="go">›</span></a>' +
+    '<a class="row" href="ox.html?mode=pair"><span class="t"><b>둘 중 맞는 문장</b><span>한두 마디만 다른 기출 두 문장</span></span><span class="go">›</span></a>' +
     (wrong ? '<a class="row" href="ox.html?mode=wrong"><span class="t"><b>틀린 문장 다시</b><span>' + wrong + "개</span></span><span class=\"go\">›</span></a>" : "");
 })();
 </script>

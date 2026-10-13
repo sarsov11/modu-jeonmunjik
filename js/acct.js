@@ -55,7 +55,7 @@
   }
 
   /* ── 탭 ── */
-  var MODES = [["sort", "계정 자리"], ["side", "차변·대변"], ["build", "재무제표 조립"], ["jour", "분개"], ["pair", "헷갈리는 짝"], ["stat", "현황"]];
+  var MODES = [["sort", "계정 자리"], ["side", "차변·대변"], ["build", "재무제표 조립"], ["jour", "분개"], ["pair", "비슷한 계정"], ["stat", "현황"]];
   var mode = new URLSearchParams(location.search).get("m") || S.mode || "sort";
   if (!MODES.some(function (m) { return m[0] === mode; })) mode = "sort";
   function tabs() {
@@ -296,7 +296,7 @@
     draw();
   }
 
-  /* ── 5. 헷갈리는 짝 ── */
+  /* ── 5. 비슷한 계정 구별 ── */
   function pairMode() {
     var p = pick("p", D.PAIRS), opts = shuffle([p.a, p.b]);
     $("main").innerHTML = meta("둘 중 맞는 쪽") + '<div class="q txt"><div class="nm">' + esc(p.q) + "</div></div>" +
@@ -329,7 +329,7 @@
     function cnt(b, items) { var n = items.filter(function (it) { return rec(b, it.id).b >= 3; }).length; return n + " / " + items.length; }
     h += '<div class="list" style="margin-top:22px">' +
       '<div class="row"><span class="t"><b>분개</b><span>세 번 연달아 맞힌 거래</span></span><span class="num">' + cnt("j", D.JOURNAL) + "</span></div>" +
-      '<div class="row"><span class="t"><b>헷갈리는 짝</b><span>세 번 연달아 맞힌 짝</span></span><span class="num">' + cnt("p", D.PAIRS) + "</span></div>" +
+      '<div class="row"><span class="t"><b>비슷한 계정</b><span>세 번 연달아 맞힌 묶음</span></span><span class="num">' + cnt("p", D.PAIRS) + "</span></div>" +
       '<div class="row"><span class="t"><b>차변·대변</b><span>세 번 연달아 맞힌 계정</span></span><span class="num">' + cnt("s", D.ACCTS.filter(function (a) { return a.g !== "임시"; })) + "</span></div></div>" +
       '<button class="btn ghost block next" id="rs" style="margin-top:22px">계정 훈련 기록 전부 삭제 · 복구 불가</button>';
     $("main").innerHTML = h;
