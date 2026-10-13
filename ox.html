@@ -213,7 +213,7 @@
           '<p class="ans">정답 <b>' + (mc ? "①②③④⑤"[+정답 - 1] : q.ox) + "</b></p>";
         /* 해설 — ① 틀린 문장 해설(data/expl: 바르게 고친 문장 + 이유) ② 같은 쟁점에서 낱말만 바꿔 낸 맞는 기출 ③ 가장 닮은 맞는 기출.
            판정 코칭 문장(「~는 헷갈리는 자리예요」 따위)은 뺐다(1013 대표님). 해설은 접지 않고 바로 보인다 */
-        var 해설 = "", ex = (window.EXPL || {})[q.i];
+        var 해설 = "", ex = (window.EXPL || {})[q.i]; if (ex && ex.c === "하") ex = null;   /* 확신 낮은 해설은 내지 않는다 */
         var p = pairOf(q.i);
         if (ex && !mc && q.ox === "X") {
           if (ex.f) 해설 += '<div class="pair"><div class="lab">바른 문장</div><p>' + GB.markDiff(ex.f, q.t)[0] + "</p></div>";
@@ -233,8 +233,10 @@
           var d2 = GB.markDiff(p.o.t, p.x.t);
           if (p.x.i !== q.i) 해설 += '<div class="pair"><div class="lab">비슷하게 낸 기출</div><p><b style="color:var(--ok)">맞음</b> ' + d2[0] + "</p></div>";
         }
+        /* 법이 바뀐 문장 — 출제 때 정답과 지금 법이 다르다(data/expl/<과목>_old.json, old:1) */
+        if (ex && ex.old) 해설 = '<div class="pair" style="border-color:var(--warn)"><div class="lab" style="color:var(--warn)">법 개정 · 지금 기준</div><p>' + RICH(ex.w) + "</p></div>";
         if (해설) h += '<div class="expl open" id="expl"><div class="body">' + 해설 + "</div></div>";
-        if (extra) h += '<p class="more">' + esc(GB.node(q.n).name) + " 문장 하나를 바로 뒤에 넣었어요.</p>";
+        if (extra) h += '<p class="more">다음에 ' + esc(GB.node(q.n).name) + " 문제 1개 더</p>";
         h += "</div>";
         var readBtn = (j.next === "concept" || j.next === "lecture")
           ? '<button class="btn ghost" id="read">' + JUDGE.다음말[j.next].t + "</button>" : "";

@@ -18,7 +18,7 @@
   /* 쟁점 요점 정리(data/notes/<id>.js → window.NOTES) — 오늘 공부 첫머리 「먼저 읽기」에 쓴다. 있는 과목만 */
   /* 아래 두 줄은 해설싣기.py 가 고쳐 쓴다 — 손으로 고치지 말 것 */
   var NOTED = {"nm_labor1": "825639", "nm_labor2": "333201"};
-  var EXPLED = {"bm_1": "966309", "nm_biz": "f477c3", "nm_labor1": "6e6c10", "nm_labor2": "96cbed", "nm_social": "22e3d5"};
+  var EXPLED = {"bm_1": "7d2a30", "bm_2": "975b1d", "bm_3": "e4d526", "bm_4": "8c094d", "nm_biz": "f477c3", "nm_civil": "f341ef", "nm_labor1": "d7a5eb", "nm_labor2": "8cc86f", "nm_social": "22e3d5"};
   if (cur && NOTED[cur]) document.write('<script src="data/notes/' + cur + '.js?v=' + NOTED[cur] + '"><\/script>');
   /* 틀린 문장 해설(data/expl/<id>.js → window.EXPL: 문장 id → {f 바른 문장, w 이유}) */
   if (cur && EXPLED[cur]) document.write('<script src="data/expl/' + cur + '.js?v=' + EXPLED[cur] + '"><\/script>');
