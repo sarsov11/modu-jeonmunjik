@@ -106,7 +106,7 @@
     },
     {
      "h": "기간 표현(제3조)",
-     "b": "on or about은 지정일 전후 5일(양 끝 포함)이다. 선적기간에서 to·until·till·from·between은 그 날을 포함하고 before·after는 뺀다. 만기 계산에서 from·after는 그 날을 뺀다. 상순(beginning)은 1~10일, 중순(middle)은 11~20일, 하순(end)은 21일~말일이고 first half는 1~15일, second half는 16일~말일이다.",
+     "b": "on or about은 지정일 전후 5일(양 끝 포함)이다. 선적기간에서 to·until·till·from·between은 그 날을 포함하고 before·after는 빼며, 만기 계산에서는 from·after가 그 날을 뺀다. 상순(beginning)은 1~10일, 중순(middle)은 11~20일, 하순(end)은 21일~말일이고 first half는 1~15일, second half는 16일~말일이다.",
      "k": [
       "전후 5일",
       "before·after",
