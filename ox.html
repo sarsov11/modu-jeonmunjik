@@ -218,6 +218,8 @@
         if (ex && ex.w && !mc && q.ox === "X") {
           if (ex.f) 해설 += '<div class="pair"><div class="lab">바른 문장</div><p>' + GB.markDiff(ex.f, q.t)[0] + "</p></div>";
           해설 += '<div class="pair"><div class="lab">왜 틀렸나</div><p>' + RICH(ex.w) + "</p></div>";
+        } else if (ex && ex.w && !mc && q.ox === "O") {   /* 맞는 문장 근거(data/expl/<과목>_o.json, 1014) */
+          해설 += '<div class="pair"><div class="lab">근거</div><p>' + RICH(ex.w) + "</p></div>";
         } else if (ex && mc && ex.w) {
           해설 += '<div class="pair"><div class="lab">해설</div><p>' + RICH(ex.w) + "</p></div>";
         } else if (p) {
