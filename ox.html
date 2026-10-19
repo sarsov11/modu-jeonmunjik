@@ -308,7 +308,7 @@
     var lc = LC[(몇째 - 1 + LC.length) % LC.length];
     var note = (window.NOTES || {})[String(s.n)];
     var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "먼저 읽기") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
-      "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
+      "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (nd.bq ? " · 교재 O·X " + nd.bq + "개" : "") + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
     if (note && note.pts && note.pts.length) {
       h += "<h3>요점</h3><div class=\"pts\">" + note.pts.map(function (p, k) {
         var b = esc(p.b);

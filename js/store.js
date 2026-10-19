@@ -195,7 +195,7 @@
   var 해수 = Math.max(1, Object.keys(해들).length);
   function qCount(nos) {
     var seen = {}, n = 0;
-    (nos || []).forEach(function (no) { qs(no).forEach(function (q) { var k = q.e + q.y + "_" + q.qn; if (!seen[k]) { seen[k] = 1; n++; } }); });
+    (nos || []).forEach(function (no) { qs(no).forEach(function (q) { if (q.bk) return; /* 교재 O·X(1019 경제)는 기출 빈도에 안 넣는다 */ var k = q.e + q.y + "_" + q.qn; if (!seen[k]) { seen[k] = 1; n++; } }); });
     return { n: n, years: 해수, avg: Math.round(n / 해수 * 10) / 10 };
   }
   function wrongList() {

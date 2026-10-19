@@ -805,7 +805,7 @@
     tc.style.color=(tier==="C"||tier==="L")?SBG2:SBG;
     document.getElementById("pkTitle").textContent=n.title;
     document.getElementById("pkQ").textContent=
-      "해마다 약 "+GB.qCount([n.no]).avg+"문제 · 기출 선지 "+n.q+"개 · "+howFar(st);
+      "해마다 약 "+GB.qCount([n.no]).avg+"문제 · 기출 선지 "+n.q+"개"+(n.bq?" · 교재 O·X "+n.bq+"개":"")+" · "+howFar(st);
     document.getElementById("pkBody").innerHTML=
       '<div class="pk-stats"><div><b>'+n.vol+'</b><span>학습 분량</span></div>'+
       '<div><b>'+n.q+'</b><span>기출 선지</span></div>'+
@@ -831,15 +831,15 @@
     document.getElementById("shTitle").textContent=n.title;
     document.getElementById("shFacts").innerHTML=
       '<span class="fact">학습 분량 <b>'+n.vol+'</b>쪽</span>'+
-      '<span class="fact">기출 선지 <b>'+n.q+'</b></span>'+
-      '<span class="fact">판례 <b>'+n.cs+'</b></span>'+
-      '<span class="fact">조문 <b>'+n.law+'</b></span>'+
+      '<span class="fact">기출 선지 <b>'+n.q+'</b></span>'+(n.bq?'<span class="fact">교재 O·X <b>'+n.bq+'</b></span>':'')+
+      (n.cs!=null?'<span class="fact">판례 <b>'+n.cs+'</b></span>':'')+
+      (n.law!=null?'<span class="fact">조문 <b>'+n.law+'</b></span>':'')+
       '<span class="fact">'+howFar(st)+(st.solved?" · <b>"+st.achieve+"</b>%":"")+'</span>';
     document.getElementById("shKeys").innerHTML="";
     document.getElementById("shNote").innerHTML=
       '<b>원 크기</b>는 기출 수가 아니라 <b>학습 분량</b>입니다 — '+
       '기출 수로 재면 최근 몇 해에 몰린 쟁점이 실제보다 커집니다. '+
-      '기출 선지 수는 따로 셌습니다. 문장은 모두 <b>기출 원본</b>이고 O·X 는 그 시험의 정답표를 따릅니다.';
+      '기출 선지 수는 따로 셌습니다. 기출 문장은 <b>기출 원본</b>이고 O·X 는 그 시험의 정답표를 따릅니다.'+(n.bq?' 교재 O·X '+n.bq+'개는 신경수 경제학 교재(미시·거시·국제)를 바탕으로 만든 문장입니다.':'');
     /* ★ 풀기 전에는 답을 보여 주지 않는다 — 옛 판은 선지 다섯 개를 O·X 와 함께 미리 보여 줘서
        바로 아래 「O·X 풀기」의 첫 문장들 답이 새었다(2026-09-23). 개수만 말한다. */
     document.getElementById("shList").innerHTML= qs.length
