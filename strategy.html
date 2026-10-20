@@ -60,6 +60,7 @@
 <script src="js/boot.js"></script>
 <script src="js/store.js"></script>
 <script src="js/strategy-data.js"></script>
+<script src="js/zzstrat.js?v=1020"></script><script src="js/strat-boot.js?v=1020"></script>
 <script>
 (function () {
   "use strict";
@@ -79,6 +80,8 @@
   function draw() {
     $("ex").innerHTML = C.EXAMS.map(function (e) { return '<button type="button" data-e="' + e.id + '"' + (e.id === cur ? ' class="on"' : "") + ">" + e.name + "</button>"; }).join("");
     $("ex").querySelectorAll("button").forEach(function (b) { b.onclick = function () { cur = b.dataset.e; history.replaceState(null, "", "?e=" + cur); draw(); }; });
+    /* 합격전략 브리핑 버튼(1020) — 고른 시험 것으로 바꿔 단다 */
+    STRATLOAD(cur, function () { var o = document.querySelector(".hd .zs-btn"); if (o) o.remove(); ZZSTRAT.button(cur, ".hd"); ZZSTRAT.fab(cur); });
     var e = C.exam(cur), st = window.STRAT[cur], t = target(st);
     var h = '<div class="box"><div class="k">' + esc(e.name) + " " + esc(e.sub) + ' 목표 평균<span class="tag ' + st.pass + '">' + (st.pass === "rel" ? "상대평가" : "절대평가") + "</span></div>" +
       '<div class="big num">' + (t ? t + "<small>점 이상</small>" : '<small style="margin:0">합격선 자료 모으는 중</small>') + "</div>" +

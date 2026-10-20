@@ -75,6 +75,7 @@
 <script src="data/ready.js"></script>
 <script src="js/boot.js"></script>
 <script src="js/store.js"></script>
+<script src="js/zzstrat.js?v=1020"></script><script src="js/strat-boot.js?v=1020"></script>
 <script>
 (function () {
   "use strict";
@@ -143,10 +144,15 @@
 
   var wrong = GB.wrongList().length;
   $("alt").innerHTML =
+    '<a class="row" href="#" id="zsrow"><span class="t"><b>합격전략 브리핑</b><span>합격선 · 과목별 목표 문항 · 필수·버림 기출</span></span><span class="go">›</span></a>' +
     '<a class="row" href="strategy.html"><span class="t"><b>합격 전략</b><span>' + (GB.exam().pass === "rel" ? "상대평가 · 커트라인 + 3점 목표" : "절대평가 · 평균 60 · 과락 40") + ' · 쟁점 S·A·B·C</span></span><span class="go">›</span></a>' +
     '<a class="row" href="ox.html?mode=hard"><span class="t"><b>어려운 O·X</b><span>한두 마디만 바꾼 함정 문장</span></span><span class="go">›</span></a>' +
     '<a class="row" href="ox.html?mode=pair"><span class="t"><b>둘 중 맞는 문장</b><span>한두 마디만 다른 기출 두 문장</span></span><span class="go">›</span></a>' +
     (wrong ? '<a class="row" href="ox.html?mode=wrong"><span class="t"><b>틀린 문장 다시</b><span>' + wrong + "개</span></span><span class=\"go\">›</span></a>" : "");
+  /* 합격전략 브리핑(1020): 시험을 고르고 처음 들어오면 튜토리얼, 이후엔 이 줄과 구석 버튼으로 */
+  var zid = GB.exam().id;
+  $("zsrow").onclick = function (ev) { ev.preventDefault(); STRATLOAD(zid, function () { ZZSTRAT.open(zid); }); };
+  STRATAUTO(zid);
 })();
 </script>
 <script src="js/zzsfx.js?v=1009a" defer></script><script src="js/zzajan.js?v=1009a" defer></script>

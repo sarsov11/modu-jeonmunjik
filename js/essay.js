@@ -190,6 +190,7 @@
     h += shown.slice(0, lim).map(itemCard).join("") + "</div>";
     if (shown.length > lim) h += '<button class="btn ghost block more" id="more" type="button">더 보기 (' + (shown.length - lim) + ")</button>";
     app.innerHTML = h;
+    if (window.STRATAUTO) STRATAUTO("jm2_" + E.code);   /* 2차 합격전략 브리핑(1020) */
     app.querySelectorAll("#ex button").forEach(function (b) { b.onclick = function () { R.pref.code = b.dataset.c; save(); history.replaceState(null, "", "?e=" + b.dataset.c); E = null; route(); }; });
     app.querySelectorAll("#subs button").forEach(function (b) { b.onclick = function () { view.s = b.dataset.s; view.u = null; view.more = 0; R.pref.s = view.s; save(); drawList(); }; });
     app.querySelectorAll("#units button").forEach(function (b) { b.onclick = function () { view.u = view.u === b.dataset.u ? null : b.dataset.u; view.more = 0; drawList(); }; });
