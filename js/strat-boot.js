@@ -10,7 +10,7 @@
     if (대기[file]) { 대기[file].push(cb); return; }
     대기[file] = [cb];
     var s = document.createElement("script");
-    s.src = "js/strat/" + file + ".js?v=1021";
+    s.src = "js/strat/" + file + ".js?v=1021b";
     s.onload = function () { var l = 대기[file]; 대기[file] = null; l.forEach(function (f) { if (f) f(); }); };
     s.onerror = function () { 대기[file] = null; };
     document.head.appendChild(s);
