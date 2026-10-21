@@ -56,7 +56,7 @@
   /* 높이를 못 박고, viewBox 를 그 비율에 맞춰 넓혀서 letterbox 를 없앤다.
      height:auto 로 두면 정원 궤도가 판보다 길어지거나 좌우가 텅 빈다(2026-08-31 실측). */
   .board svg{display:block;width:100%;height:clamp(430px,50vw,690px)}
-  @media(max-width:760px){.board svg{height:clamp(460px,120vw,760px)}}
+  @media(max-width:760px){.board svg{height:clamp(520px,150vw,820px)}}
   .node{cursor:pointer}
   .node:focus-visible{outline:none}
   .nb{transform-box:fill-box;transform-origin:center;
@@ -75,7 +75,7 @@
   .peek.on{opacity:1;transform:none}
   .peek[hidden]{display:none}
   .pk-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .pk-eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--stage-ink-2)}
+  .pk-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--stage-ink-2)}
   .pk-tier{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--stage);
     padding:3px 10px;border-radius:6px;letter-spacing:.06em}
   .pk-title{font-size:20px;color:var(--stage-ink);margin:9px 0 0;line-height:1.3}
@@ -85,11 +85,11 @@
   .pk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .pk-stats b{display:block;font-family:var(--mono);font-size:20px;font-weight:600;
     color:var(--stage-ink);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .pk-stats span{font-size:11.5px;color:var(--stage-ink-2)}
+  .pk-stats span{font-size:12px;color:var(--stage-ink-2)}
   .pk-keys{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
   .pk-key{font-size:12.5px;padding:4px 10px;border-radius:7px;background:var(--surface-2);
     color:var(--ink-2);border:1px solid var(--line-2)}
-  .pk-foot{margin-top:11px;font-size:11.5px;color:var(--stage-ink-2);font-family:var(--mono)}
+  .pk-foot{margin-top:11px;font-size:12px;color:var(--stage-ink-2);font-family:var(--mono)}
 
   /* 노드 시트 */
   .sheet{position:fixed;inset:0;z-index:90;display:flex;align-items:center;
@@ -106,7 +106,7 @@
   .sheet.on .sheetcard{opacity:1;transform:none}
   .sh-top{position:sticky;top:0;z-index:2;background:var(--surface);padding:22px 26px 16px;
     border-bottom:1px solid var(--line)}
-  .sh-eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink-4)}
+  .sh-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-4)}
   .sh-top h3{font-size:25px;margin:8px 0 0;letter-spacing:-.04em;
     font-family:var(--title);font-weight:var(--tw)}
   .sh-x{position:absolute;right:18px;top:18px;width:34px;height:34px;border-radius:50%;
@@ -114,7 +114,7 @@
     cursor:pointer;font-size:15px;line-height:1;transition:.16s}
   .sh-x:hover{color:var(--ink);border-color:var(--line-3)}
   .sh-facts{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
-  .fact{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);border:1px solid var(--line);
+  .fact{font-family:var(--mono);font-size:12px;color:var(--ink-3);border:1px solid var(--line);
     background:var(--surface-2);padding:5px 10px;border-radius:7px}
   .fact b{color:var(--ink);font-weight:600}
   .sh-body{padding:18px 26px 26px}
@@ -126,7 +126,7 @@
     border:1px solid var(--line);color:var(--ink-2)}
   .qprev{border:1px solid var(--line);border-radius:var(--r1);background:var(--surface-2);
     padding:13px 15px;margin-bottom:8px;font-size:14px;line-height:1.65;color:var(--ink-2)}
-  .qprev .m{font-family:var(--mono);font-size:11.5px;color:var(--ink-4);display:flex;gap:9px;
+  .qprev .m{font-family:var(--mono);font-size:12px;color:var(--ink-4);display:flex;gap:9px;
     flex-wrap:wrap;margin-top:7px}
   .qprev .m .ox{font-weight:700}
   .qprev .m .ox.o{color:var(--mint)} .qprev .m .ox.x{color:var(--red-2)}
@@ -149,7 +149,7 @@
     border-bottom:1px solid var(--line);background:var(--surface-2)}
   .grp .gh .cd{font-family:var(--mono);font-size:13px;font-weight:700}
   .grp .gh h3{font-size:16px;flex:1;min-width:0}
-  .grp .gh .n{font-family:var(--mono);font-size:11.5px;color:var(--ink-4)}
+  .grp .gh .n{font-family:var(--mono);font-size:12px;color:var(--ink-4)}
   .mrow{display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;
     border-bottom:1px solid var(--line);background:var(--surface)}
   .mrow:last-child{border-bottom:0}
@@ -307,13 +307,15 @@
     var W=Math.max(340,Math.round(st?st.clientWidth:1180));
     var k=Math.max(.52,Math.min(1,W/1180));
     var H=Math.round(W<640?W*1.30 : W<900?W*.88 : W*.58);
-    LAY={W:W,H:H,CX:W/2,CY:H/2,k:k,
+    var nar=W<640;   /* 폰: 이름표를 원 위·아래 가운데에 고정 크기 글자로(10-21 「스킬트리 꾸겨짐」, 모두의자격과 같은 방식) */
+    LAY={W:W,H:H,CX:W/2,CY:H/2,k:k,nar:nar,
          rCore:Math.round(74*k+12),
          fCore:Math.round(28*k+8),
-         fName:Math.round(11*k+4),
-         fSub:Math.round(9*k+3)};
+         fName:nar?13:Math.round(11*k+4),
+         fSub:nar?12:Math.round(9*k+3)};
     return LAY;
   }
+  function nmFit(t,L){ t=String(t||""); return (L.nar&&t.length>9)?t.slice(0,8)+"…":t; }
   var uid=0;
   function svgEl(){ return document.getElementById("orbit"); }
   function fitView(layer){
@@ -330,6 +332,12 @@
     if(w/h < want){ var nw=h*want; x-=(nw-w)/2; w=nw; }
     else{ var nh=w/want; y-=(nh-h)/2; h=nh; }
     svg.setAttribute("viewBox",[x.toFixed(0),y.toFixed(0),w.toFixed(0),h.toFixed(0)].join(" "));
+    /* 폰 글자 하한(1021 대표님 「스킬트리 꾸겨진 형태」): 판을 줄여 맞추면 글자가 5~6px 로 찌그러진다.
+       화면 배율을 곱한 실제 크기가 10.5px 아래인 글자는 그만큼 키운다 */
+    var sc=box.width?box.width/w:1;
+    if(sc<1) [].forEach.call(svg.querySelectorAll("text"),function(t){
+      var f=parseFloat(t.getAttribute("font-size"))||0; if(f&&f*sc<12){ t.setAttribute("font-size",(12/sc).toFixed(1)); }
+    });
   }
   /* 검은 원 + 테두리 + 아래에서 차오르는 채움 */
   function orb(parent,x,y,r,col,pct,opt){
@@ -479,15 +487,15 @@
         "font-family":cv("--title")||"Noto Sans KR","pointer-events":"none"});
       /* 이름표는 반드시 바깥쪽으로 — 안쪽에 놓으면 가운데 코어와 겹친다(2026-08-31 실측) */
       var ca=Math.cos(rad(a)), sa=Math.sin(rad(a)), off=rr+14;
-      var anc=ca>.3?"start":ca<-.3?"end":"middle";
-      var up=(anc==="middle"&&sa<0);
-      var y0=y+sa*off+(anc==="middle"?(sa>0?L.fName+6:-6):L.fName*.34);
+      var anc=L.nar?"middle":(ca>.3?"start":ca<-.3?"end":"middle");
+      var up=L.nar?(sa<-.3):(anc==="middle"&&sa<0);
+      var y0=L.nar?(up?y-rr-6:y+rr+L.fName+6):y+sa*off+(anc==="middle"?(sa>0?L.fName+6:-6):L.fName*.34);
       var lg=el("g",{class:"lblg"},labs);
       lg.dataset.cx=x; lg.dataset.cy=y; lg.dataset.r=rr;
-      var l1=txt(lg,p.name,{x:x+ca*off,y:up?y0-L.fSub-5:y0,"text-anchor":anc,fill:SINK,
+      var l1=txt(lg,nmFit(p.name,L),{x:L.nar?x:x+ca*off,y:up?y0-L.fSub-5:y0,"text-anchor":anc,fill:SINK,
         "font-size":L.fName+2,"font-weight":700,"font-family":cv("--kr")});
       var l2=txt(lg,"해마다 약 "+GB.qCount(GB.nodes.filter(function(n){return n.part===p.no;}).map(function(n){return n.no;})).avg+"문제 · 성취도 "+ps.achieve+"%",
-        {x:x+ca*off,y:up?y0:y0+L.fSub+5,"text-anchor":anc,fill:SINK2,
+        {x:L.nar?x:x+ca*off,y:up?y0:y0+L.fSub+5,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub+1,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
       function open(){ if(!busy) goPart(p.no,x,y); }
@@ -534,15 +542,15 @@
       var gp=orb(nodes,x,y,rr,hue,st.achieve,{bold:true});
       gp.setAttribute("aria-label",c.name+" 열기 · 성취도 "+st.achieve+"퍼센트");
       var ca=Math.cos(rad(a)), sa=Math.sin(rad(a)), off=rr+13;
-      var anc=ca>.3?"start":ca<-.3?"end":"middle";
-      var up=(anc==="middle"&&sa<0);
-      var y0=y+sa*off+(anc==="middle"?(sa>0?L.fName+4:-4):L.fName*.34);
+      var anc=L.nar?"middle":(ca>.3?"start":ca<-.3?"end":"middle");
+      var up=L.nar?(sa<-.3):(anc==="middle"&&sa<0);
+      var y0=L.nar?(up?y-rr-5:y+rr+L.fName+5):y+sa*off+(anc==="middle"?(sa>0?L.fName+4:-4):L.fName*.34);
       var lg=el("g",{class:"lblg"},labs);
       lg.dataset.cx=x; lg.dataset.cy=y; lg.dataset.r=rr;
-      var l1=txt(lg,c.name,{x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,fill:SINK,
+      var l1=txt(lg,nmFit(c.name,L),{x:L.nar?x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,fill:SINK,
         "font-size":L.fName+1,"font-weight":700,"font-family":cv("--kr")});
       var l2=txt(lg,c.nodes.length+"쟁점 · "+st.vol+"쪽 · "+st.achieve+"%",
-        {x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
+        {x:L.nar?x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
       liven(gp,[l1,l2],function(){ chPeek(c,gp); },hidePeek);
@@ -571,7 +579,7 @@
     var g=el("g",{class:"ink"},g0);
     var list=flat?T.nodes.slice():chNodes(key), m=list.length;
     /* 궤도는 정원 — 타원으로 눕히면 위아래 원이 몰리고 판이 찌그러져 보인다(1013 대표님 「원 찌부」) */
-    var R0=Math.min(L.W,L.H)*(m>9?.31:.30), RX=Math.round(R0), RY=Math.round(R0);
+    var R0=Math.min(L.W,L.H)*(m>9?.31:.30), RX=Math.round(R0), RY=Math.round(R0*(L.nar&&m>9?1.5:1));   /* 폰에서 쟁점이 많으면 세로로 늘려 이름표 간격을 연다(1021) */
     el("ellipse",{cx:L.CX,cy:L.CY,rx:RX,ry:RY,fill:"none",stroke:SLINE,"stroke-width":1,opacity:".6"},g);
     var link=el("g",{},g), nodes=el("g",{},g), labs=el("g",{},g);
     var maxV=Math.max.apply(null,list.map(function(n){ return n.vol; }))||1;
@@ -599,20 +607,21 @@
       var nh=nodeHue(n.no), gp=orb(nodes,x,y,rr,tone(n.part,tier,0,nh),st.achieve,{});
       gp.setAttribute("aria-label",n.title+" 열기 · 성취도 "+st.achieve+"퍼센트");
       var ca=Math.cos(rad(a)), sa=Math.sin(rad(a)), off=rr+13;
-      var anc=ca>.3?"start":ca<-.3?"end":"middle";
-      var up=(anc==="middle"&&sa<0);
-      var y0=y+sa*off+(anc==="middle"?(sa>0?L.fName+4:-4):L.fName*.34);
+      var anc=L.nar?"middle":(ca>.3?"start":ca<-.3?"end":"middle");
+      var up=L.nar?(sa<-.3):(anc==="middle"&&sa<0);
+      var y0=L.nar?(up?y-rr-5:y+rr+L.fName+5):y+sa*off+(anc==="middle"?(sa>0?L.fName+4:-4):L.fName*.34);
       var lg=el("g",{class:"lblg"},labs);
       lg.dataset.cx=x; lg.dataset.cy=y; lg.dataset.r=rr;
       var short=n.title.length>22?n.title.slice(0,21)+"…":n.title;
       /* 폰에서 쟁점이 다 보이는 판은 이름을 줄인다 — 긴 이름표 때문에 판 전체가 작게 줄어 글자가 안 읽혔다(1013) */
       var tiny=flat&&L.W<640;
       if(tiny){ short=n.title.split(/[·(]/)[0]; if(short.length>7) short=short.slice(0,7)+"…"; }
-      var l1=txt(lg,short,{x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,
+      else short=nmFit(short,L);
+      var l1=txt(lg,short,{x:L.nar?x:x+ca*off,y:up?y0-L.fSub-4:y0,"text-anchor":anc,
         fill:lock?SINK2:SINK,"font-size":L.fName,"font-weight":700,"font-family":cv("--kr")});
       var qc=GB.qCount([n.no]);
       var l2=txt(lg,tiny?qc.avg+"문제":"해마다 약 "+qc.avg+"문제"+(lock?"":" · "+st.achieve+"%"),
-        {x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
+        {x:L.nar?x:x+ca*off,y:up?y0:y0+L.fSub+4,"text-anchor":anc,fill:SINK2,
          "font-size":L.fSub,"font-weight":600,"font-family":cv("--kr")});
       [l1,l2].forEach(function(e){ e.classList.add("lbl"); });
       liven(gp,[l1,l2],function(){ nodePeek(n,gp); },hidePeek);
