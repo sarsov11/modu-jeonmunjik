@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <script>try{document.documentElement.dataset.skin=localStorage.getItem("mp.skin")||"white"}catch(e){document.documentElement.dataset.skin="white"}</script>
 <link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/diagram.css?v=1026a">
 <style>
   .hd{display:flex;align-items:center;gap:10px;padding:18px 0 0}
   .hd h1{font-size:20px;flex:1;min-width:0}
@@ -35,6 +36,8 @@
   .swap{display:grid;gap:6px;background:var(--surface-2);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;font-size:15px;line-height:1.7}
   .swap p{margin:0} .swap small{color:var(--ink-4);font-size:12.5px}
   .stones i.rd{background:var(--lc,#2563EB)}
+  .yodo-src{margin-top:14px}
+  .yodo-src summary{cursor:pointer;font-weight:800;font-size:14.5px;color:var(--ink-3);padding:8px 0}
 </style>
 </head>
 <body class="focus">
@@ -49,6 +52,7 @@
 <script src="js/boot.js"></script>
 <script src="js/judge.js"></script>
 <script src="js/store.js"></script>
+<script src="js/diagram.js?v=1026a"></script>
 <script src="js/rich.js"></script>
 <script>
 (function () {
@@ -69,9 +73,20 @@
     $("ttl").textContent = "오늘 " + t.min + "분";
   } else if (mode === "node") {
     var nd = GB.node(nodeNo);
+    /* 스킬트리 소주제(잎)에서 왔으면 그 소주제 문장만(1025) — 문장 id 는 skilltree.html 이 sessionStorage 에 넣는다 */
+    var leafIds = null;
+    if (qsp.get("leaf")) { try { leafIds = JSON.parse(sessionStorage.getItem("stree.ids") || "null"); } catch (e) {} }
+    if (leafIds && leafIds.length) {
+      var lset = {}; leafIds.forEach(function (i) { lset[i] = 1; });
+      var lqs = GB.qs(nodeNo).filter(function (q) { return lset[q.i]; });
+      var lw = lqs.filter(function (q) { var a = GB.answered(q.i); return a && !a.ok; });
+      var lf = lqs.filter(function (q) { return !GB.answered(q.i); });
+      seq = lw.concat(lf, lqs.filter(function (q) { var a = GB.answered(q.i); return a && a.ok; })).slice(0, 10).map(function (q) { return { k: "ox", id: q.i }; });
+    } else {
     var wrong = GB.qs(nodeNo).filter(function (q) { var a = GB.answered(q.i); return a && !a.ok; });
     seq = wrong.concat(GB.freshOf(nodeNo, 10)).slice(0, 10).map(function (q) { return { k: "ox", id: q.i }; });
     GB.pairs(nodeNo).slice(0, 2).forEach(function (p, i) { seq.splice(3 + i * 4, 0, { k: "pair", id: p.id }); });
+    }
     $("ttl").textContent = nd ? nd.name : "O·X";
   } else if (mode === "wrong") {
     seq = GB.wrongList().slice(0, 15).map(function (id) { return { k: "ox", id: id }; });
@@ -307,14 +322,22 @@
     if (!따로) for (var i = pos + 1; i < seq.length && seq[i].k !== "learn"; i++) if (seq[i].k !== "learn" && !seq[i].re) 문제수++;
     var lc = LC[(몇째 - 1 + LC.length) % LC.length];
     var note = (window.NOTES || {})[String(s.n)];
+    /* 도식(2026-10-26 대표님 「모든 과목 개념을 도식으로」) — data/dosik/<과목>.js 가 있으면 요점 대신 도식, 요점 원문은 접는다 */
+    var dkey = (window.TREE && TREE.key) || "";
+    if (dkey && window.DIAGRAM && !(window.DOSIK && DOSIK[dkey]) && !showLearn.불러봄) {
+      showLearn.불러봄 = 1;
+      var dsc = document.createElement("script"); dsc.src = "data/dosik/" + dkey + ".js";
+      dsc.onload = dsc.onerror = function () { showLearn(s, 따로); }; document.head.appendChild(dsc); return;
+    }
+    var 도식 = window.DOSIK && DOSIK[dkey] && DOSIK[dkey][String(s.n)];
     var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "먼저 읽기") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
       "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (nd.bq ? " · 교재 O·X " + nd.bq + "개" : "") + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
     if (note && note.pts && note.pts.length) {
-      h += "<h3>요점</h3><div class=\"pts\">" + note.pts.map(function (p, k) {
+      h += (도식 ? "<h3>요점</h3><div class=\"yodo\">" + 도식.map(DIAGRAM.html).join("") + "</div><details class=\"yodo-src\"><summary>요점 원문</summary>" : "") + (도식 ? "" : "<h3>요점</h3>") + "<div class=\"pts\">" + note.pts.map(function (p, k) {
         var b = esc(p.b);
         (p.k || []).forEach(function (w) { if (w) b = b.split(esc(w)).join("<em>" + esc(w) + "</em>"); });
         return '<div class="pt" style="--pc:' + LC[k % LC.length] + '"><b>' + esc(p.h) + "</b><p>" + b + "</p></div>";
-      }).join("") + "</div>";
+      }).join("") + "</div>" + (도식 ? "</details>" : "");
     }
     var os = GB.qs(s.n).filter(function (q) { return q.ox === "O" && !오늘[q.i] && !q.mc; })
       .sort(function (a, b) { return (b.y || 0) - (a.y || 0); }).slice(0, note ? 5 : 8);
