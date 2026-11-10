@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#A16207">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>합격 전략 — 모두의 전문직</title>
 <link rel="icon" href="icons/favicon.svg">
@@ -14,7 +15,7 @@
   .ex{display:flex;gap:6px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
   .ex::-webkit-scrollbar{display:none}
   .ex button{flex:none;font-size:15px;font-weight:800;padding:8px 14px;border-radius:99px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer}
-  .ex button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .ex button.on{background:var(--cta-soft);border-color:var(--cta-line);color:var(--cta-2)}
   .box{margin-top:14px;padding:20px;border:1.5px solid var(--ink);border-radius:var(--r3);background:var(--surface)}
   .box .k{font-size:14px;font-weight:800;color:var(--ink-3)}
   .box .big{font-size:40px;font-weight:900;letter-spacing:-.05em;line-height:1.1;margin:4px 0}
@@ -54,6 +55,7 @@
   <div class="hd"><h1>합격 전략</h1></div>
   <div class="ex" id="ex"></div>
   <div id="main"></div>
+  <a class="btn block" href="ox.html" style="margin-top:20px">시작</a>
 </div>
 <script src="js/catalog.js"></script>
 <script src="data/ready.js"></script>
@@ -80,7 +82,7 @@
   function draw() {
     $("ex").innerHTML = C.EXAMS.map(function (e) { return '<button type="button" data-e="' + e.id + '"' + (e.id === cur ? ' class="on"' : "") + ">" + e.name + "</button>"; }).join("");
     $("ex").querySelectorAll("button").forEach(function (b) { b.onclick = function () { cur = b.dataset.e; history.replaceState(null, "", "?e=" + cur); draw(); }; });
-    /* 합격전략 브리핑 버튼(1020) — 고른 시험 것으로 바꿔 단다 */
+    /* 합격 전략 버튼(1020) — 고른 시험 것으로 바꿔 단다 */
     STRATLOAD(cur, function () { var o = document.querySelector(".hd .zs-btn"); if (o) o.remove(); ZZSTRAT.button(cur, ".hd"); ZZSTRAT.fab(cur); });
     var e = C.exam(cur), st = window.STRAT[cur], t = target(st);
     var h = '<div class="box"><div class="k">' + esc(e.name) + " " + esc(e.sub) + ' 목표 평균<span class="tag ' + st.pass + '">' + (st.pass === "rel" ? "상대평가" : "절대평가") + "</span></div>" +

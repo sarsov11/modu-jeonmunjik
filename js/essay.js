@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   모두의 전문직 — 2차 답안 훈련 (2026-10-09)
+   모두의 전문직 — 2차 답안 드릴 (2026-10-09)
    자료: data2/<시험코드>.js → window.E2 (2차\가져오기2.py 가 기출 + 루브릭을 합쳐 만든다)
    학습 단위 = 득점 요소. 채점 = 요소마다 핵심어 대조(공백·문장부호 무시) → 요소 배점 합.
    네 가지 연습: 쟁점 인출(폰 1분) · 목차 쓰기 · 실전 쓰기(시간 재기) · 계산 단계.
@@ -131,7 +131,7 @@
   function route() {
     stopTimer();
     var code = curCode();
-    if (!code) { app.innerHTML = '<div class="hd"><h1>2차 답안 훈련</h1></div><div class="empty">2차 기출을 정리하고 있습니다.</div>'; return; }
+    if (!code) { app.innerHTML = '<div class="hd"><h1>2차 답안 드릴</h1></div><div class="empty">2차 기출을 정리하고 있습니다.</div>'; return; }
     loadExam(code, function () {
       var h = new URLSearchParams(location.hash.slice(1));
       if (h.get("q")) return drawItem(h.get("q"), h.get("m") || "recall", h.get("due") === "1");
@@ -150,7 +150,7 @@
     var due = dueItems();
     var tried = Object.keys(R.best).filter(function (id) { return itemById(id); });
     var avg = tried.length ? Math.round(tried.reduce(function (a, id) { var b = R.best[id], it = itemById(id); return a + (it.p ? b.s / it.p : 0); }, 0) / tried.length * 100) : 0;
-    var h = '<div class="hd"><h1>2차 답안 훈련</h1><a href="strategy.html">1차 전략</a></div>';
+    var h = '<div class="hd"><h1>2차 답안 드릴</h1><a href="strategy.html">1차 전략</a></div>';
     h += '<div class="chips" id="ex">' + IDX.map(function (x) { return '<button type="button" data-c="' + x.code + '"' + (x.code === E.code ? ' class="on"' : "") + ">" + esc(x.name) + "</button>"; }).join("") + "</div>";
     var ps = PASS2[E.code];
     if (ps) h += '<div class="pass2"><b>2차 합격 기준</b> ' + esc(ps[0]) + ". " + esc(ps[1]) + '. <span>' + esc(ps[2]) + "</span></div>";
@@ -190,7 +190,7 @@
     h += shown.slice(0, lim).map(itemCard).join("") + "</div>";
     if (shown.length > lim) h += '<button class="btn ghost block more" id="more" type="button">더 보기 (' + (shown.length - lim) + ")</button>";
     app.innerHTML = h;
-    if (window.STRATAUTO) STRATAUTO("jm2_" + E.code);   /* 2차 합격전략 브리핑(1020) */
+    if (window.STRATAUTO) STRATAUTO("jm2_" + E.code);   /* 2차 합격 전략(1020) */
     app.querySelectorAll("#ex button").forEach(function (b) { b.onclick = function () { R.pref.code = b.dataset.c; save(); history.replaceState(null, "", "?e=" + b.dataset.c); E = null; route(); }; });
     app.querySelectorAll("#subs button").forEach(function (b) { b.onclick = function () { view.s = b.dataset.s; view.u = null; view.more = 0; R.pref.s = view.s; save(); drawList(); }; });
     app.querySelectorAll("#units button").forEach(function (b) { b.onclick = function () { view.u = view.u === b.dataset.u ? null : b.dataset.u; view.more = 0; drawList(); }; });

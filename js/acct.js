@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   모두의 전문직 — 계정 훈련 화면 (2026-10-08)
+   모두의 전문직 — 계정 드릴 화면 (2026-10-08)
    자리(분류) · 차대 · 재무제표 조립 · 분개 · 짝 · 현황.
    기록은 localStorage `mp.acct.v1` — 상자(0~5) 반복: 맞히면 한 칸 위, 틀리면 0으로.
    상자가 낮을수록 자주 나온다.
@@ -59,7 +59,7 @@
   var mode = new URLSearchParams(location.search).get("m") || S.mode || "sort";
   if (!MODES.some(function (m) { return m[0] === mode; })) mode = "sort";
   function tabs() {
-    $("tabs").innerHTML = MODES.map(function (m) { return '<button type="button" data-m="' + m[0] + '"' + (m[0] === mode ? ' class="on"' : "") + ">" + m[1] + "</button>"; }).join("");
+    $("tabs").innerHTML = MODES.map(function (m, i) { return '<button type="button" data-m="' + m[0] + '"' + (m[0] === mode ? ' class="on"' : "") + ">" + m[1] + (i === 0 ? '<em class="recpill">추천</em>' : "") + "</button>"; }).join("");
     $("tabs").querySelectorAll("button").forEach(function (b) { b.onclick = function () { mode = b.dataset.m; S.mode = mode; save(); tabs(); run(); }; });
   }
   function run() { ({ sort: sortMode, side: sideMode, build: buildMode, jour: jourMode, pair: pairMode, stat: statMode })[mode](); window.scrollTo(0, 0); }
@@ -181,7 +181,7 @@
         '<div class="tray" id="tray">' + (left.length ? left.map(function (n) { return chip(n, n === sel ? "sel" : ""); }).join("") : '<span class="empty">다 놓았다. 채점을 누른다.</span>') + "</div>";
       if (kind === "BS") h += '<div class="fs"><div><h3>자산</h3>' + LEFT.map(slot).join("") + "</div><div><h3>부채</h3>" + RIGHT.slice(0, 2).map(slot).join("") + "<h3 style=\"margin-top:10px\">자본</h3>" + RIGHT.slice(2).map(slot).join("") + "</div></div>";
       else h += '<div class="fs one"><div><h3>포괄손익계산서</h3>' + PLS.map(slot).join("") + "</div></div>";
-      h += checked ? statement() + '<button class="btn block next" id="nx">새 문제</button>' :
+      h += checked ? statement() + '<button class="btn block next" id="nx">기출</button>' :
         '<button class="btn block next" id="ck"' + (left.length ? " disabled" : "") + ">채점</button>";
       if (sel && !checked) {
         var ks = kind === "BS" ? LEFT.concat(RIGHT) : PLS;
@@ -331,10 +331,10 @@
       '<div class="row"><span class="t"><b>분개</b><span>세 번 연달아 맞힌 거래</span></span><span class="num">' + cnt("j", D.JOURNAL) + "</span></div>" +
       '<div class="row"><span class="t"><b>비슷한 계정</b><span>세 번 연달아 맞힌 묶음</span></span><span class="num">' + cnt("p", D.PAIRS) + "</span></div>" +
       '<div class="row"><span class="t"><b>차변·대변</b><span>세 번 연달아 맞힌 계정</span></span><span class="num">' + cnt("s", D.ACCTS.filter(function (a) { return a.g !== "임시"; })) + "</span></div></div>" +
-      '<button class="btn ghost block next" id="rs" style="margin-top:22px">계정 훈련 기록 전부 삭제 · 복구 불가</button>';
+      '<button class="btn ghost block next" id="rs" style="margin-top:22px">계정 드릴 기록 전부 삭제 · 복구 불가</button>';
     $("main").innerHTML = h;
     $("rs").onclick = function () {
-      if (!confirm("계정 훈련 기록 전부 삭제 · 복구 불가")) return;
+      if (!confirm("계정 드릴 기록 전부 삭제 · 복구 불가")) return;
       S = { a: {}, s: {}, j: {}, p: {}, opt: S.opt, day: today(), today: 0, todayOk: 0 }; save(); statMode();
     };
   }

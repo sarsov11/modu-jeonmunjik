@@ -93,7 +93,10 @@
   function setGoal(d, mine) { P.goal = d || null; P.goalMine = !!mine; savePref(); }
   function dday() { return dayNo(goal()) - TODAYN; }
 
-  function minutes() { return P.minutes || 15; }
+  function minOpts() { return [60, 120, 180, 240, 360, 480]; }   /* 화면표준 7절: 1·2·3·4·6·8시간, 가장 긴 것 8시간 */
+  var MIN_REC = 120;
+  function minutes() { var m = +P.minutes; if (m > 480) return 480; return minOpts().indexOf(m) >= 0 ? m : MIN_REC; }   /* 옛 10~30분 값은 추천 시간으로 읽는다 */
+  function minText(m) { var h = Math.floor(m / 60), r = m % 60; return h ? h + "시간" + (r ? " " + r + "분" : "") : m + "분"; }
   function setMinutes(m) { P.minutes = m; savePref(); delete S.today; save(); }
   function name() { return P.name || ""; }
   function setName(v) { P.name = String(v || "").trim().slice(0, 12); savePref(); }
@@ -228,7 +231,7 @@
     function 초(id) { var q = ITEM[id]; return q && q.mc ? SEC_MC : SEC_PER; }
     var 예산 = minutes() * 60, 쓴 = 0;
     /* ★ 먼저 읽고 푼다(1013 대표님 「공부한 것 하나 없이 OX 부터 갈기면 어떡하냐」).
-       오늘 쟁점마다 첫머리에 「먼저 읽기」(요점 정리 + 맞는 기출 문장 + 바뀌어 나온 곳) 한 장. 쟁점당 약 3분(요점 없으면 2분) */
+       오늘 쟁점마다 첫머리에 「개념」(요점 정리 + 맞는 기출 문장 + 바뀌어 나온 곳) 한 장. 쟁점당 약 3분(요점 없으면 2분) */
     var NT = window.NOTES || {};
     function 읽기초(no) { return NT[String(no)] ? 180 : 120; }
     var foci = focusNodes(minutes() >= 25 ? 3 : 2), fresh = [], 본 = {};
@@ -248,7 +251,7 @@
     var ps = [];
     foci.forEach(function (n) { pairs(n.no).forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2 && ps.indexOf(p.id) < 0) ps.push(p.id); }); });
     if (ps.length < 2) PR.forEach(function (p) { if (!S.pairs[p.id] && ps.length < 2 && ps.indexOf(p.id) < 0) ps.push(p.id); });   /* 같은 짝 두 번 금지(1013 허브 점검) */
-    /* 순서 — 쟁점마다 [먼저 읽기 → 그 쟁점 새 문장 → 두 문장 고르기], 그다음 남는 쟁점 새 문장, 복습은 맨 끝.
+    /* 순서 — 쟁점마다 [개념 → 그 쟁점 새 문장 → 두 문장 고르기], 그다음 남는 쟁점 새 문장, 복습은 맨 끝.
        복습을 맨 앞에 두면 오늘 배울 것 없이 문제부터 나온다 */
     var seq = [], 쟁점별 = {};
     fresh.forEach(function (id) { var no = ITEM[id].n; (쟁점별[no] = 쟁점별[no] || []).push(id); });
@@ -375,29 +378,41 @@
   var ICON = {
     essay: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>',
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
-    tree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5"/><circle cx="21" cy="11" r="1.2" fill="currentColor"/></svg>',
+    tree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>',
     acct: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 10h18"/></svg>',
     drill: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
     set: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>'
   };
-  var PAGES = [["index.html", "홈", "home"], ["skilltree.html", "스킬트리", "tree"],
-               ["drill.html", "훈련", "drill"], ["settings.html", "설정", "set"]];
+  var PAGES = [["index.html", "오늘", "home"], ["skilltree.html", "합격 지도", "tree"],
+               ["drill.html", "드릴", "drill"], ["settings.html", "설정", "set"]];
   /* 회계학이 있는 시험은 「계정」 탭(계정 자리·재무제표 조립·분개)을 훈련 뒤에 넣는다 */
-  if (["cpa", "semusa", "gwanse", "nomusa"].indexOf((P.exam || "")) >= 0) PAGES.splice(3, 0, ["acct.html", "계정", "acct"]);
-  /* 2차 답안 훈련(2026-10-09) — 설정 바로 앞 */
+  /* 화면표준 9절: 탭은 다섯 칸까지 — 계정 드릴은 드릴 탭 목록 안으로 옮김 */
+  /* 2차 답안 드릴(2026-10-09) — 설정 바로 앞 */
   PAGES.splice(PAGES.length - 1, 0, ["essay.html", "2차", "essay"]);
+  /* 화면표준 9절 — 공용 파일(zzstrat 등)이 그리는 말을 앱 쪽에서 표준 용어로 바꾼다(공용 파일 본문은 그대로) */
+  function terraTerms() {
+    var M = [[/합격전략 브리핑/g, "합격 전략"], [/합격전략/g, "합격 전략"], [/학습 비서/g, "테라에이전트"], [/비서/g, "테라에이전트"], [/코치/g, "테라에이전트"]];
+    function fix(root) {
+      var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
+      while ((n = w.nextNode())) { var p = n.parentNode; if (p && p.closest && p.closest(".zs-btn,.zs-fab,#zs,#zst,#zsy,#zzc,#tpad,.nav,.tabbar,#strat")) list.push(n); }
+      list.forEach(function (t) { var v = t.nodeValue, o = v; M.forEach(function (m) { v = v.replace(m[0], m[1]); }); if (v !== o) t.nodeValue = v; });
+    }
+    try { fix(document.body); new MutationObserver(function () { fix(document.body); }).observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+  }
   function mountNav(here) {
+    terraTerms();
     /* 처음 온 사람은 첫 설정으로 — 검사기(webdriver)는 보내지 않는다 */
     if (!onboarded() && here !== "start.html" && !navigator.webdriver && !/[?&]nostart/.test(location.search)) {
       location.replace("start.html"); return;
     }
     var nav = document.createElement("div");
     nav.className = "nav";
-    nav.innerHTML = '<div class="in"><a class="logo" href="index.html"><i></i>' + esc(T.brand) +
+    var bw = String(T.brand).trim().split(/\s+/), lastw = bw.pop(), mk = lastw.charAt(0);
+    nav.innerHTML = '<div class="in"><a class="logo" href="index.html"><b class="mk">' + esc(mk) + '</b><span class="nm">' + esc(bw.join(" ")) + (bw.length ? " " : "") + "<em>" + esc(lastw) + "</em></span>" +
       '<span class="sub">' + esc(T.subject) + "</span></a>" +
       '<nav class="navlinks">' + PAGES.map(function (p) {
         return '<a href="' + p[0] + '"' + (p[0] === here ? ' class="on"' : "") + ">" + p[1] + "</a>";
-      }).join("") + "</nav></div>";
+      }).join("") + '</nav><a class="gridbtn" href="https://teralearning.kr/" title="테라러닝 대문" aria-label="테라러닝 대문"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/></svg></a></div>';
     document.body.insertBefore(nav, document.body.firstChild);
     var tab = document.createElement("nav");
     tab.className = "tabbar";
@@ -406,7 +421,7 @@
     }).join("");
     document.body.appendChild(tab);
   }
-  function mountNext() {}   /* 옛 스킬트리가 부른다. 이 판은 홈이 권하므로 비워 둔다 */
+  function mountNext() {}   /* 옛 합격 지도가 부른다. 이 판은 홈이 권하므로 비워 둔다 */
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -442,7 +457,7 @@
     today: today, markToday: markToday, streak: streak, todayCount: todayCount, tier: tier, tierOn: tierOn, setTierOn: setTierOn, days: days, SEC_PER: SEC_PER,
     placementSet: placementSet, setPlacement: setPlacement, placement: function () { return S.place || null; },
     track: track, setTrack: setTrack, exam: exam, setExam: setExam, subs: subs, cur: cur, setCur: setCur, seriesName: seriesName, goal: goal, goalMark: goalMark, setGoal: setGoal, dday: dday,
-    minutes: minutes, setMinutes: setMinutes, name: name, setName: setName,
+    minutes: minutes, minOpts: minOpts, minText: minText, MIN_REC: MIN_REC, setMinutes: setMinutes, name: name, setName: setName,
     onboarded: onboarded, setOnboarded: setOnboarded,
     skin: skin, setSkin: setSkin, SKINS: SKINS,
     mountNav: mountNav, mountNext: mountNext,

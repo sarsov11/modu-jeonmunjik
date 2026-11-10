@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#A16207">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>O·X — 모두의 전문직</title>
 <link rel="icon" href="icons/favicon.svg">
@@ -20,7 +21,7 @@
   .readhd h2{font-size:18px;flex:1}
   .empty{padding:48px 8px;text-align:center;color:var(--ink-3)}
   .spd{font-size:40px;font-weight:900;text-align:center;letter-spacing:-.05em}
-  /* 먼저 읽기 — 오늘 쟁점 첫머리(1013) */
+  /* 개념 — 오늘 쟁점 첫머리(1013) */
   .lrn .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
   .lrn .tag{font-size:13px;font-weight:800;color:#fff;background:var(--lc,#2563EB);padding:4px 11px;border-radius:99px}
   .lrn .step{font-size:13px;font-weight:700;color:var(--ink-4)}
@@ -42,11 +43,13 @@
 </head>
 <body class="focus">
 <div class="page">
-  <div class="hd"><h1 id="ttl">O·X</h1><span class="cnt num" id="cnt"></span><a class="x" href="index.html" title="그만하기">✕</a></div>
+  <div class="hd"><a class="bk" href="index.html" title="뒤로" aria-label="뒤로">‹</a><h1 id="ttl">O·X</h1><span class="cnt num" id="cnt"></span><a class="x" href="index.html" title="그만하기">✕</a></div>
   <div class="stones" id="prog"></div>
   <div id="stage"></div>
 </div>
 
+<script src="js/tera-pad.js"></script>
+<script src="js/tera-q.js"></script>
 <script src="js/catalog.js"></script>
 <script src="data/ready.js"></script>
 <script src="js/boot.js"></script>
@@ -70,10 +73,10 @@
   if (mode === "today") {
     var t = GB.today();
     t.seq.forEach(function (s, i) { if (!s.done) { seq.push(s); todayIdx.push(i); } });
-    $("ttl").textContent = "오늘 " + t.min + "분";
+    $("ttl").textContent = "오늘 " + GB.minText(t.min);
   } else if (mode === "node") {
     var nd = GB.node(nodeNo);
-    /* 스킬트리 소주제(잎)에서 왔으면 그 소주제 문장만(1025) — 문장 id 는 skilltree.html 이 sessionStorage 에 넣는다 */
+    /* 합격 지도 소주제(잎)에서 왔으면 그 소주제 문장만(1025) — 문장 id 는 skilltree.html 이 sessionStorage 에 넣는다 */
     var leafIds = null;
     if (qsp.get("leaf")) { try { leafIds = JSON.parse(sessionStorage.getItem("stree.ids") || "null"); } catch (e) {} }
     if (leafIds && leafIds.length) {
@@ -90,7 +93,7 @@
     $("ttl").textContent = nd ? nd.name : "O·X";
   } else if (mode === "wrong") {
     seq = GB.wrongList().slice(0, 15).map(function (id) { return { k: "ox", id: id }; });
-    $("ttl").textContent = "틀린 문장 다시";
+    $("ttl").textContent = "복습";
   } else if (mode === "pair") {
     var pl = (nodeNo ? GB.pairs(nodeNo) : GB.pairs()).filter(function (p) { return !GB.state().pairs[p.id] || !GB.state().pairs[p.id].ok; });
     shuffle(pl, 17);
@@ -141,7 +144,8 @@
       var r = results[i];
       h += "<i class=\"" + (r ? (r.learn ? "rd" : r.kind === "오개념" ? "warn" : r.ok ? "ok" : "no") : i === pos ? "now" : seq[i] && seq[i].k === "learn" ? "rd" : "") + "\"" + (seq[i] && seq[i].k === "learn" ? ' style="border-radius:50%"' : "") + "></i>";
     }
-    $("prog").innerHTML = h + '<span class="left">남은 ' + Math.max(0, n - pos - (results[pos] ? 1 : 0)) + "개</span>";
+    var _db = (typeof doneBefore === "number" ? doneBefore : 0), _pc = (n + _db) ? Math.round((_db + Math.min(n, pos + (results[pos] ? 1 : 0))) / (n + _db) * 1000) / 10 : 0;
+    $("prog").innerHTML = '<div class="trk"><i style="width:' + _pc + '%"></i></div><span class="left"><b>' + Math.max(0, n - pos - (results[pos] ? 1 : 0)) + '</b>문제 남았어요</span>';
   }
 
   function nodeChip(no) { var n = GB.node(no); return n ? '<span class="chip">' + esc(n.name) + "</span>" : ""; }
@@ -164,6 +168,104 @@
   }
 
   /* ── 한 문장 O·X ── */
+  /* 풀이 창(화면표준 8절) — 계산 과목이거나 발문·선지가 계산 문항이면 문제 판 바로 아래 왼쪽에 「풀이 창」 단추.
+     단계별 풀이 자료(steps)는 이 앱에 아직 없다 → steps 없이 연다(단계별 칸은 「준비 중」). */
+  var CALC_SUBJ = /회계|재정학|원가|재무/;
+  function padHook(q, mc) {
+    try {
+      if (!window.TERA_PAD) return;
+      var nd = q.n && GB.node ? GB.node(q.n) : null, nn = nd && nd.name ? nd.name : "";
+      var txt = mc ? (mc.s || "") + " " + (mc.d || "") + " " + (mc.o || []).join(" ") : (q.t || "");
+      var 계산과목 = CALC_SUBJ.test(String(GB.subject || "") + " " + nn);
+      if (!계산과목 && !TERA_PAD.isCalc(txt)) return;
+      var card = document.querySelector("#stage .qcard"); if (!card) return;
+      var row = document.createElement("div"); row.className = "padrow";
+      card.parentNode.insertBefore(row, card.nextSibling);
+      TERA_PAD.button(row, function () {
+        setTimeout(function () { try { var c = document.querySelector("#stage .qcard"); if (c) window.scrollTo({ top: Math.max(0, c.getBoundingClientRect().top + window.pageYOffset - 124), behavior: "smooth" }); } catch (e) {} }, 320);
+        return { key: String(q.i || q.id || s_id(q)), title: nn || String(GB.subject || "") };
+      });
+    } catch (e) {}
+  }
+  function s_id(q) { return (q.t || "").slice(0, 24); }
+  /* 풀이 창이 열려 있는 동안 본문 아래 여백·「다음」 단추 자리를 창 높이만큼 비킨다 */
+  setInterval(function () {
+    var p = document.getElementById("tpad"), on = !!(p && p.classList.contains("on"));
+    document.body.classList.toggle("tpad-open", on);
+    document.body.classList.toggle("tpad-big", !!(p && p.classList.contains("big")));
+  }, 250);
+  /* ══ 문제 화면 공용 부품(tera-q, 화면표준 12절) — 발문 20/30 · 번호 줄 · 선지 줄 · 아래 줄 ══ */
+  var TQ_MARK = "star";   /* 공시·전문직 = 별 1~3, 자격 = S·A·B·C */
+  var TQ_TOP = null;
+  function tqTop() {   /* 해마다 문제 수 상위 20% 파트 — 합격 지도와 같은 셈(시험·연도·번호 한 문항 = 1) */
+    if (TQ_TOP) return TQ_TOP;
+    TQ_TOP = {};
+    try {
+      var ys = {}, rows = [];
+      GB.T.nodes.forEach(function (n) { GB.qs(n.no).forEach(function (x) { if (x.y) ys[x.y] = 1; }); });
+      var Y = Math.max(1, Object.keys(ys).length);
+      GB.T.nodes.forEach(function (n) {
+        var seen = {}, k = 0; GB.qs(n.no).forEach(function (x) { if (x.bk) return; var u = (x.e || "") + "|" + x.y + "|" + (x.qn || x.i); if (!seen[u]) { seen[u] = 1; k++; } });
+        if (k) rows.push({ no: n.no, a: k / Y });
+      });
+      rows.sort(function (a, b) { return b.a - a.a; });
+      rows.forEach(function (r, i) { TQ_TOP[r.no] = (i + 1) / rows.length; });
+    } catch (e) {}
+    return TQ_TOP;
+  }
+  function tqSync() {
+    var h = document.getElementById("tqHalf"), c = $("conf");
+    if (h && c) { var b = c.querySelectorAll("button")[1]; h.classList.toggle("is-on", !!(b && b.getAttribute("aria-pressed") === "true")); }
+    var nx = document.getElementById("tqNext"), n = $("nx");
+    if (nx) nx.disabled = !(n && $("after") && $("after").contains(n));
+    var ex = document.getElementById("tqExp"); if (ex) ex.disabled = !$("expl");
+  }
+  function tqBar(q) {
+    var bar = document.getElementById("tqbar"); if (!bar) return;
+    bar.hidden = false; document.body.classList.add("tq-on");
+    var cnt = $("cnt") ? $("cnt").textContent.split("/") : [];
+    var pos = document.getElementById("tqPos"); if (pos) pos.innerHTML = (cnt[0] || "").trim() + (cnt[1] ? " <small>/ " + cnt[1].trim() + "</small>" : "");
+    document.getElementById("tqHalf").onclick = function () {
+      var bs = $("conf") && $("conf").querySelectorAll("button"); if (!bs || !bs[1]) return;
+      (bs[1].getAttribute("aria-pressed") === "true" ? bs[0] : bs[1]).click(); tqSync();
+    };
+    document.getElementById("tqExp").onclick = function () { var e = $("expl") || $("after"); if (e) e.scrollIntoView({ behavior: "smooth", block: "start" }); };
+    document.getElementById("tqPen").onclick = function () {
+      if (!window.TERA_PAD || !TERA_PAD.pen) return;
+      var self = this; TERA_PAD.pen({ key: String(q.i), onChange: function (on) { self.classList.toggle("is-on", !!on); } });
+    };
+    document.getElementById("tqNext").onclick = function () { var n = $("nx"); if (n) n.click(); };
+    document.getElementById("tqPrev").disabled = true;
+    tqSync();
+    try { new MutationObserver(tqSync).observe($("after"), { childList: true, subtree: true }); } catch (e) {}
+  }
+  function tqDress(q, mc) {
+    try {
+      if (window.TERA_PAD && TERA_PAD.penHide) TERA_PAD.penHide();
+      var pen = document.getElementById("tqPen"); if (pen) pen.classList.remove("is-on");
+      var card = document.querySelector("#stage .qcard"); if (!card) return;
+      var sent = $("sent"); if (sent) sent.classList.add("tq-stem");
+      Array.prototype.forEach.call(card.querySelectorAll(".mcdata"), function (x) { x.classList.add("tq-box"); });
+      /* 번호 줄 */
+      var meta = document.createElement("div"); meta.className = "tq-meta";
+      var cn = $("cnt") ? parseInt($("cnt").textContent, 10) : 0;
+      meta.innerHTML = '<span class="tq-no">' + (cn || (pos + 1)) + '번 문제</span><span id="tqbd"></span><span class="tq-sp"></span><span id="tqtg"></span>';
+      card.parentNode.insertBefore(meta, card);
+      if (window.TERA_Q) {
+        var fr = tqTop()[q.n]; if (fr) TERA_Q.badge(document.getElementById("tqbd"), TQ_MARK === "tier" ? { tier: fr <= 0.4 ? "S" : fr <= 0.7 ? "A" : fr <= 0.9 ? "B" : "C" } : { stars: fr <= 0.2 ? 3 : fr <= 0.5 ? 2 : 1 });
+        TERA_Q.toggle(document.getElementById("tqtg"));
+      }
+      /* 선지 줄 */
+      Array.prototype.forEach.call(document.querySelectorAll("#oxb.mcb button"), function (b, i) {
+        var nb = b.querySelector("b"), sp = b.querySelector("span"); if (!nb || !sp) return;
+        b.className = "tq-choice"; b.innerHTML = '<span class="tq-n">' + (i + 1) + '</span><span class="tq-t">' + sp.innerHTML + "</span>";
+      });
+      /* 확신도: 「헷갈림」을 안 켜면 확실 */
+      var cb = $("conf") && $("conf").querySelectorAll("button"); if (cb && cb[0]) cb[0].click();
+      if (window.TERA_Q) { TERA_Q.annotate($("sent")); TERA_Q.annotate(document.querySelectorAll("#oxb .tq-t")); }
+      tqBar(q);
+    } catch (e) { if (window.console) console.warn("tqDress", e); }
+  }
   function showOX(s) {
     var q = GB.item(s.id);
     if (!q) { next(); return; }
@@ -187,6 +289,8 @@
       단추 +
       '<p class="hint" id="hint">확실한지 먼저 골라요</p>' +
       '<div id="after"></div>';
+    padHook(q, mc);
+    setTimeout(function () { tqDress(q, mc); }, 0);
     var cb = $("conf").querySelectorAll("button");
     cb.forEach(function (b) {
       b.onclick = function () {
@@ -304,7 +408,7 @@
     });
   }
 
-  /* ── 먼저 읽기 — 오늘 쟁점마다 문제 앞에 한 장(1013 대표님 「공부한 것 없이 OX 부터」).
+  /* ── 개념 — 오늘 쟁점마다 문제 앞에 한 장(1013 대표님 「공부한 것 없이 OX 부터」).
        ① 요점 정리(data/notes, 있는 과목만) ② 시험에 맞는 문장으로 나온 기출(오늘 풀 문장은 뺀다)
        ③ 시험이 바꿔 낸 곳(같은 쟁점 맞는 문장·틀린 문장, 다른 낱말 색칠) */
   var LC = ["#2563EB", "#10B981", "#8B5CF6", "#F97316", "#EC4899", "#06B6D4"];
@@ -330,7 +434,7 @@
       dsc.onload = dsc.onerror = function () { showLearn(s, 따로); }; document.head.appendChild(dsc); return;
     }
     var 도식 = window.DOSIK && DOSIK[dkey] && DOSIK[dkey][String(s.n)];
-    var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "먼저 읽기") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
+    var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "개념") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
       "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (nd.bq ? " · 교재 O·X " + nd.bq + "개" : "") + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
     if (note && note.pts && note.pts.length) {
       h += (도식 ? "<h3>요점</h3><div class=\"yodo\">" + 도식.map(DIAGRAM.html).join("") + "</div><details class=\"yodo-src\"><summary>요점 원문</summary>" : "") + (도식 ? "" : "<h3>요점</h3>") + "<div class=\"pts\">" + note.pts.map(function (p, k) {
@@ -349,7 +453,7 @@
       return '<div class="swap"><p><b style="color:var(--ok)">맞음</b> ' + d[0] + '</p><p><b style="color:var(--no)">틀림</b> ' + d[1] +
         "</p><small>" + esc((p.x.y || "") + " " + (p.x.e || "")) + "</small></div>";
     }).join("");
-    if (따로 === "back") h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">이어서 풀기</button></div></div>';
+    if (따로 === "back") h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">시작</button></div></div>';
     else if (따로) h += '<div class="acts" style="margin-top:20px"><a class="btn" style="background:' + lc + '" href="ox.html?node=' + s.n + '">이 쟁점 문제 풀기</a></div></div>';
     else h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">다 읽었음 · 문제 ' + 문제수 + "개</button></div></div>";
     $("stage").innerHTML = h;
@@ -363,7 +467,7 @@
     };
   }
 
-  /* 쟁점 요점 — 판정 뒤 「이 쟁점 요점 보기」, 스킬트리에서 들어올 때. 먼저 읽기와 같은 카드 */
+  /* 쟁점 요점 — 판정 뒤 「이 쟁점 요점 보기」, 합격 지도에서 들어올 때. 개념과 같은 카드 */
   function showRead(no, back) { showLearn({ n: no }, back ? "back" : 1); }
 
   /* ── 60초 스피드 — 확신도 없이, 반응만 ── */
@@ -396,7 +500,7 @@
     function fin() {
       if (fined) return; fined = true; clearInterval(tick); cheerEnd(ok, n);
       $("stage").innerHTML = '<div class="done"><div class="big num">' + ok + " / " + n + '</div><p class="muted">60초 동안 ' + n + "문장, " + ok + '개 맞힘</p>' +
-        '<div class="acts"><a class="btn ghost" href="drill.html">훈련으로</a><a class="btn" href="ox.html?mode=speed">한 번 더</a></div></div>';
+        '<div class="acts"><a class="btn ghost" href="drill.html">드릴로</a><a class="btn" href="ox.html?mode=speed">한 번 더</a></div></div>';
     }
     one();
   }
@@ -421,7 +525,7 @@
       '<p class="muted">' + (todayDone ? "오늘 분량 완료." : "이번 묶음을 다 풀었어요.") + "</p>" +
       '<div class="grid3" style="grid-template-columns:repeat(2,1fr)"><div><b class="num">' + ok + "</b><span>맞힘</span></div><div><b class=\"num\" style=\"color:var(--warn)\">" + mis +
       '</b><span>확신했는데 틀림</span></div></div>' +
-      '<div class="acts" style="margin-top:22px"><a class="btn ghost" href="index.html">홈</a>' +
+      '<div class="acts" style="margin-top:22px"><a class="btn ghost" href="index.html">오늘</a>' +
       (mis ? '<a class="btn" href="ox.html?mode=hard">어려운 O·X</a>' : '<a class="btn" href="ox.html?mode=wrong">틀린 것 다시</a>') + "</div></div>";
   }
 
@@ -439,8 +543,8 @@
   if (mode === "speed") { runSpeed(); return; }
   if (!seq.length) {
     $("stage").innerHTML = '<div class="empty">' + (mode === "today" ? "오늘 분량 완료. 내일 새 분량." :
-      mode === "wrong" ? "틀린 문장이 없어요." : "풀 문장이 없어요.") +
-      '<div class="acts" style="justify-content:center;margin-top:18px"><a class="btn" href="index.html">홈</a></div></div>';
+      mode === "wrong" ? "복습할 문장이 없어요." : "풀 문장이 없어요.") +
+      '<div class="acts" style="justify-content:center;margin-top:18px"><a class="btn" href="index.html">오늘</a></div></div>';
     return;
   }
   pos = -1; next();
@@ -450,5 +554,12 @@
 <script src="js/terrahome.js?v=1021" data-slot=".nav .in" defer></script>
 <script src="js/supa.config.js"></script>
 <script src="js/research.js" data-service="pro"></script>
+<div class="tq-bar" id="tqbar" hidden>
+  <button type="button" class="tq-tool" id="tqHalf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.3 2.2c-.7.3-1 .8-1 1.5M12 16.5v.01"/></svg>헷갈림</button>
+  <button type="button" class="tq-tool" id="tqExp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6.5C10.2 5 7.6 4.5 4.5 4.8v13c3.100-.3 5.700.2 7.500 1.700 1.800-1.500 4.400-2 7.500-1.700v-13c-3.100-.3-5.700.2-7.500 1.700zM12 6.500v13"/></svg>해설</button>
+  <button type="button" class="tq-tool" id="tqPen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l1-4L16 5l3 3L8.5 18.5z"/></svg>펜</button>
+  <span class="tq-sp"></span>
+  <button type="button" class="tq-nav" id="tqPrev" aria-label="이전">‹</button><span class="tq-pos" id="tqPos"></span><button type="button" class="tq-nav is-next" id="tqNext" aria-label="다음">다음 ›</button>
+</div>
 </body>
 </html>
