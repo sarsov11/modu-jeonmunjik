@@ -28,7 +28,7 @@
     if (!need.length) { cb(); return; }
     var left = need.length;
     need.forEach(function (u) {
-      var sc = document.createElement("script"); sc.src = "js/jd/" + u + ".js?v=1110u";
+      var sc = document.createElement("script"); sc.src = "js/jd/" + u + ".js?v=1110v";
       sc.onload = sc.onerror = function () { loaded[u] = 1; if (--left === 0) { reindex(); cb(); } };
       document.head.appendChild(sc);
     });
@@ -323,7 +323,14 @@
 
   /* ── 들어가기: ?u=단원 [&a=계정] ── */
   var qp = new URLSearchParams(location.search), qu = qp.get("u"), qa = qp.get("a");
-  if (qp.get("review")) { if (R.reviewCount()) startReview(); else listView(); }
+  if (qp.get("item")) {   /* 거래 하나만 풀기(복습 목록에서 그 거래로) */
+    var iid = qp.get("item"), iu = iid.split("-")[0];
+    if (UNIT[iu]) loadUnits([iu], function () {
+      var it = ITEM[iid]; if (!it) { listView(); return; }
+      cur = { u: iu, a: it.a, items: [it], i: 0, ok: 0, res: [] };
+      openItem();
+    }); else listView();
+  } else if (qp.get("review")) { if (R.reviewCount()) startReview(); else listView(); }
   else if (qu && UNIT[qu]) {
     if (!qa || UNIT[qu].accts.indexOf(qa) < 0) {
       var na = null; UNIT[qu].accts.forEach(function (an) { if (!na && !mastered(qu, an)) na = an; });
