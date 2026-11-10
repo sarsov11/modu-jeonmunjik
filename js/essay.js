@@ -153,10 +153,9 @@
     var h = '<div class="hd"><h1>2차 답안 드릴</h1><a href="strategy.html">1차 전략</a></div>';
     h += '<div class="chips" id="ex">' + IDX.map(function (x) { return '<button type="button" data-c="' + x.code + '"' + (x.code === E.code ? ' class="on"' : "") + ">" + esc(x.name) + "</button>"; }).join("") + "</div>";
     var ps = PASS2[E.code];
-    if (ps) h += '<div class="pass2"><b>2차 합격 기준</b> ' + esc(ps[0]) + ". " + esc(ps[1]) + '. <span>' + esc(ps[2]) + "</span></div>";
+    if (ps) h += '<details class="fold"><summary>2차 합격 기준</summary><div class="pass2">' + esc(ps[0]) + ". " + esc(ps[1]) + '. <span>' + esc(ps[2]) + "</span></div></details>";
     h += '<div class="today"><h2>' + (due.length ? "오늘 다시 떠올릴 물음 " + due.length + "개" : "오늘 할 것") + "</h2>" +
-      "<p>" + (due.length ? "어제까지 놓친 득점 요소가 다시 나올 차례입니다. 물음 하나에 1분." :
-        "아래 단원 중 출제가 많은 곳부터 물음을 골라 「쟁점 인출」로 시작하세요. 놓친 요소는 내일부터 여기에 모입니다.") + "</p>" +
+      (due.length ? "<p>어제까지 놓친 득점 요소가 다시 나올 차례입니다. 물음 하나에 1분.</p>" : "") +
       (due.length ? '<a class="btn block" href="#q=' + encodeURIComponent(due[0]) + '&m=recall&due=1">시작</a>' : "") +
       '<div class="stat"><div><b>' + E.items.length.toLocaleString() + "</b><span>기출 물음 (채점표 " + withR.length.toLocaleString() + ")</span></div>" +
       "<div><b>" + tried.length + "</b><span>내가 써 본 물음</span></div><div><b>" + avg + "%</b><span>평균 득점률(최고점)</span></div></div></div>";
@@ -203,7 +202,7 @@
     return '<a class="item" href="#q=' + encodeURIComponent(it.id) + '&m=' + (it.el && it.el.length ? "recall" : "full") + '"><div class="top"><span>' + it.y + " · " + it.n + "번" + (it.sn ? " " + esc(it.sn) : "") + "</span>" +
       '<span class="pill t-' + esc(it.t) + '">' + esc(it.t || "서술") + "</span><span>" + (it.p ? it.p + "점" : "") + "</span>" +
       (b ? '<span class="best">최고 ' + b.s + "/" + it.p + "</span>" : (it.el && it.el.length ? "" : '<span class="best" style="color:var(--ink-4)">채점표 준비 중</span>')) +
-      '</div><div class="q">' + esc(txt) + "</div>" + (it.iss && it.iss.length ? '<div class="iss">' + esc(it.iss.join(" · ")) + "</div>" : "") + "</a>";
+      '</div><div class="q qstem">' + esc(txt) + "</div>" + (it.iss && it.iss.length ? '<div class="iss qstem">' + esc(it.iss.join(" · ")) + "</div>" : "") + "</a>";
   }
 
   /* ── 문제 화면 ──────────────────────────────────── */
@@ -259,11 +258,11 @@
   }
   function elHtml(el, cls, extra) {
     var kw = el.cand ? "다음 중 " + el.k + "개 · " + el.cand.map(function (c) { return c.n; }).join(", ") : (el.kw || []).join(", ");
-    return '<div class="el ' + (cls || "") + '" data-id="' + esc(el.id) + '"><div class="h"><b>' + esc(el.n) + "</b><span>" + el.p + "점</span></div>" +
+    return '<div class="el el-expl ' + (cls || "") + '" data-id="' + esc(el.id) + '"><div class="h"><b>' + esc(el.n) + "</b><span>" + el.p + "점</span></div>" +
       (kw ? '<div class="kw">핵심어 · ' + esc(kw) + "</div>" : "") + (el.src ? '<div class="gr">근거 · ' + esc(el.src) + (el.ok === false ? " (확인 중)" : "") + "</div>" : "") + (extra || "") + "</div>";
   }
   function modelHtml(it) {
-    var h = '<div class="model">';
+    var h = '<div class="model model-expl">';
     if (it.toc && it.toc.length) h += "<h4>목차</h4><p class=\"toc\">" + esc(it.toc.join("\n")) + "</p>";
     if (it.model) h += '<h4 style="margin-top:12px">답안 예시</h4><p class="txt">' + esc(it.model) + "</p>";
     if (it.minus && it.minus.length) h += '<h4 style="margin-top:12px">자주 깎이는 곳</h4><ul class="minus">' + it.minus.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";

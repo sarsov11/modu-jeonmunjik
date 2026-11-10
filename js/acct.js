@@ -48,7 +48,7 @@
   }
   function secNames(a) { return a.sec.map(function (k) { return SECS[k].n; }).join(" / "); }
   function fbAcct(a, ok, extra) {
-    return '<div class="fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + " — " + esc(a.n) + "</div>" +
+    return '<div class="fb expl-fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + " — " + esc(a.n) + "</div>" +
       '<div class="kv"><span>' + esc(a.g) + "</span><span>" + esc(secNames(a)) + "</span>" +
       (a.g !== "임시" ? "<span>정상잔액 " + a.side + "변</span>" : "") + (a.contra ? "<span>" + esc(a.contra) + (a.contra.indexOf("가산") >= 0 ? "" : " 차감") + "</span>" : "") + "</div>" +
       esc(a.tip) + (extra || "") + "</div>";
@@ -284,7 +284,7 @@
           if (window.ZZ) { if (ok) ZZ.ok(this); else ZZ.no(this); }
           draw();
           function side(xs) { return xs.map(function (x) { return "<p><b>" + esc(x[0]) + '</b><span class="num">' + won(x[1]) + "</span></p>"; }).join(""); }
-          $("main").insertAdjacentHTML("beforeend", '<div class="fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + "</div>" +
+          $("main").insertAdjacentHTML("beforeend", '<div class="fb expl-fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + "</div>" +
             '<div class="tf"><div><h4>차변</h4>' + side(j.d) + "</div><div><h4>대변</h4>" + side(j.c) + "</div></div>" +
             '<p style="margin:10px 0 0">' + esc(j.why) + "</p>" +
             j.x.filter(function (n) { return D.BY[n]; }).map(function (n) { return '<p style="margin:6px 0 0;color:var(--ink-3)"><b>' + esc(n) + "</b>: " + esc(D.BY[n].tip) + "</p>"; }).join("") +
@@ -306,7 +306,7 @@
         var ok = b.dataset.v === p.a;
         grade("p", p.id, ok); if (window.ZZ) { if (ok) ZZ.ok(b); else ZZ.no(b); }
         $("main").querySelectorAll(".grid button").forEach(function (x) { x.disabled = true; if (x.dataset.v === p.a) x.classList.add("ok"); else if (x === b) x.classList.add("no"); });
-        $("main").insertAdjacentHTML("beforeend", '<div class="fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + " — " + esc(p.a) + "</div>" + esc(p.why) +
+        $("main").insertAdjacentHTML("beforeend", '<div class="fb expl-fb"><div class="v ' + (ok ? "ok" : "no") + '">' + (ok ? "맞음" : "틀림") + " — " + esc(p.a) + "</div>" + esc(p.why) +
           '</div><button class="btn block next" id="nx">다음</button>');
         $("nx").onclick = pairMode; $("nx").focus();
       };

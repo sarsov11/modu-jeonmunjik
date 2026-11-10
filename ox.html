@@ -13,32 +13,32 @@
 <style>
   .hd{display:flex;align-items:center;gap:10px;padding:18px 0 0}
   .hd h1{font-size:20px;flex:1;min-width:0}
-  .hd .cnt{font-size:15px;color:var(--ink-3)}
-  .hd a.x{color:var(--ink-4);text-decoration:none;font-size:22px;line-height:1;padding:4px}
+  .hd .cnt{font-size:14px;color:var(--ink-3)}
+  .hd a.x{color:var(--ink-4);text-decoration:none;font-size:20px;line-height:1;padding:4px}
   .lock{opacity:.35;pointer-events:none}
-  .more{margin-top:10px;font-size:14.5px;color:var(--ink-3)}
+  .more{margin-top:10px;font-size:14px;color:var(--ink-3)}
   .readhd{display:flex;align-items:center;gap:10px;margin-top:18px}
-  .readhd h2{font-size:18px;flex:1}
+  .readhd h2{font-size:16px;flex:1}
   .empty{padding:48px 8px;text-align:center;color:var(--ink-3)}
-  .spd{font-size:40px;font-weight:900;text-align:center;letter-spacing:-.05em}
+  .spd{font-size:26px;font-weight:800;text-align:center;letter-spacing:-.05em}
   /* 개념 — 오늘 쟁점 첫머리(1013) */
   .lrn .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
-  .lrn .tag{font-size:13px;font-weight:800;color:#fff;background:var(--lc,#2563EB);padding:4px 11px;border-radius:99px}
+  .lrn .tag{font-size:13px;font-weight:800;color:#fff;background:var(--lc,var(--cta));padding:4px 11px;border-radius:999px}
   .lrn .step{font-size:13px;font-weight:700;color:var(--ink-4)}
-  .lrn h2{font-size:24px;margin:10px 0 2px;letter-spacing:-.04em}
+  .lrn h2{font-size:26px;margin:10px 0 2px;letter-spacing:-.04em}
   .lrn .meta{font-size:14px;color:var(--ink-3)}
-  .lrn h3{font-size:15px;margin:22px 0 8px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
-  .lrn h3:before{content:"";width:6px;height:16px;border-radius:3px;background:var(--lc,#2563EB)}
+  .lrn h3{font-size:14px;margin:22px 0 8px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+  .lrn h3:before{content:"";width:6px;height:16px;border-radius:12px;background:var(--lc,var(--cta))}
   .pts{display:grid;gap:10px}
   .pt{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--pc);border-radius:var(--r2);padding:13px 15px}
-  .pt b{display:block;font-size:16px;font-weight:900;color:var(--pc);letter-spacing:-.03em;margin-bottom:3px}
-  .pt p{margin:0;font-size:15.5px;line-height:1.72;color:var(--ink)}
-  .pt em{font-style:normal;font-weight:800;background:color-mix(in srgb,var(--pc) 16%,transparent);border-radius:4px;padding:0 3px}
-  .swap{display:grid;gap:6px;background:var(--surface-2);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;font-size:15px;line-height:1.7}
-  .swap p{margin:0} .swap small{color:var(--ink-4);font-size:12.5px}
-  .stones i.rd{background:var(--lc,#2563EB)}
+  .pt b{display:block;font-size:16px;font-weight:800;color:var(--pc);letter-spacing:-.03em;margin-bottom:3px}
+  .pt p{margin:0;font-size:16px;line-height:1.72;color:var(--ink)}
+  .pt em{font-style:normal;font-weight:800;background:color-mix(in srgb,var(--pc) 16%,transparent);border-radius:12px;padding:0 3px}
+  .swap{display:grid;gap:6px;background:var(--surface-2);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;font-size:14px;line-height:1.7}
+  .swap p{margin:0} .swap small{color:var(--ink-4);font-size:13px}
+  .stones i.rd{background:var(--lc,var(--cta))}
   .yodo-src{margin-top:14px}
-  .yodo-src summary{cursor:pointer;font-weight:800;font-size:14.5px;color:var(--ink-3);padding:8px 0}
+  .yodo-src summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--ink-3);padding:8px 0}
 </style>
 </head>
 <body class="focus">
@@ -312,7 +312,7 @@
         var pick = b.dataset.a, ok = pick === 정답, ms = Date.now() - t0;
         $("oxb").querySelectorAll("button").forEach(function (x) {
           x.disabled = true;
-          if (x.dataset.a === 정답) x.dataset.s = "ok"; else if (x === b) x.dataset.s = "no";
+          if (x.dataset.a === 정답) { x.dataset.s = "ok"; x.classList.add("ok"); } else if (x === b) { x.dataset.s = "no"; x.classList.add("no"); }
         });
         var st = GB.nodeStat(q.n), prev = GB.answered(q.i); noteTier(q.n);
         var j = JUDGE.판정({ ok: ok, conf: conf, ms: ms, attempt: prev ? prev.n + 1 : 1, mastery: st.mastery,
@@ -332,7 +332,7 @@
           if (more) { extra = more; seq.splice(pos + 1, 0, { k: "ox", id: more.i, add: 1 }); if (mode === "today") todayIdx.splice(pos + 1, 0, -1); drawProg(); }
         }
 
-        var h = '<div class="verdict ' + j.tone + '"><div class="top"><span class="mk">' + (ok ? "O" : "✕") + "</span>" +
+        var h = '<div class="verdict ' + j.tone + (j.tone === "warn" ? " bad" : "") + '"><div class="top"><span class="mk">' + (ok ? "O" : "✕") + "</span>" +
           (ok ? '<span class="reward">+1</span>' : "") + '<span class="chip">' + esc(j.label || { "재시도정답": "다시 풀어 맞힘", "연속오답": "연속 오답" }[j.kind] || j.kind) + "</span></div>" +
           '<p class="ans">정답 <b>' + (mc ? "①②③④⑤"[+정답 - 1] : q.ox) + "</b></p>";
         /* 해설 — ① 틀린 문장 해설(data/expl: 바르게 고친 문장 + 이유) ② 같은 쟁점에서 낱말만 바꿔 낸 맞는 기출 ③ 가장 닮은 맞는 기출.
@@ -349,15 +349,15 @@
         } else if (p) {
           var d = GB.markDiff(p.o.t, p.x.t);
           해설 += '<div class="pair"><div class="lab">같은 내용을 맞게 낸 기출 · ' + esc((p.o.y || "") + " " + (p.o.e || "")) + "</div>" +
-               '<p><b style="color:var(--ok)">맞음</b> ' + d[0] + "</p>" +
-               '<p><b style="color:var(--no)">틀림</b> ' + d[1] + "</p></div>";
+               '<p><b class="ok" style="color:var(--ok)">맞음</b> ' + d[0] + "</p>" +
+               '<p><b class="no" style="color:var(--no)">틀림</b> ' + d[1] + "</p></div>";
         } else if (!mc && q.ox === "X") {
           var o = nearestO(q);
           if (o) 해설 += '<div class="pair"><div class="lab">같은 쟁점의 맞는 기출 · ' + esc(GB.src(o)) + "</div><p>" + GB.markDiff(o.t, q.t)[0] + "</p></div>";
         }
         if (ex && ex.f && p && q.ox === "X") {
           var d2 = GB.markDiff(p.o.t, p.x.t);
-          if (p.x.i !== q.i) 해설 += '<div class="pair"><div class="lab">비슷하게 낸 기출</div><p><b style="color:var(--ok)">맞음</b> ' + d2[0] + "</p></div>";
+          if (p.x.i !== q.i) 해설 += '<div class="pair"><div class="lab">비슷하게 낸 기출</div><p><b class="ok" style="color:var(--ok)">맞음</b> ' + d2[0] + "</p></div>";
         }
         /* 법이 바뀐 문장 — 출제 때 정답과 지금 법이 다르다(data/expl/<과목>_old.json, old:1) */
         if (ex && ex.old) 해설 = '<div class="pair" style="border-color:var(--warn)"><div class="lab" style="color:var(--warn)">법 개정 · 지금 기준</div><p>' + RICH(ex.ow) + "</p></div>" + (ex.w ? 해설 : "");   /* 옛 법 기준 비교 기출은 지금 법과 어긋나니 뺀다 */
@@ -384,9 +384,9 @@
     var A = flip ? [p.x, p.o] : [p.o, p.x], done = false;
     $("stage").innerHTML =
       '<div class="qcard"><div class="src">' + nodeChip(p.n) + '<span class="chip cta">둘 중 맞는 문장</span></div>' +
-      '<p class="sent" style="font-size:17px">두 기출 문장 중 <b>맞는 문장</b>을 고르세요.</p>' +
+      '<p class="sent" style="font-size:16px">두 기출 문장 중 <b>맞는 문장</b>을 고르세요.</p>' +
       '<div class="two" id="two">' + A.map(function (x, i) {
-        return '<button type="button" data-i="' + x.i + '"><b>' + "가나"[i] + '</b><span class="tx">' + RICH(x.t) + "</span></button>";
+        return '<button type="button" data-i="' + x.i + '"><b>' + "가나"[i] + '</b><span class="tx stemq">' + RICH(x.t) + "</span></button>";
       }).join("") + "</div></div><div id=\"after\"></div>";
     $("two").querySelectorAll("button").forEach(function (b) {
       b.onclick = function () {
@@ -397,7 +397,7 @@
           x.disabled = true;
           var isO = x.dataset.i === p.o.i;
           x.querySelector(".tx").innerHTML = isO ? d[0] : d[1];
-          if (isO) x.dataset.s = "ok"; else if (x === b) x.dataset.s = "no";
+          if (isO) { x.dataset.s = "ok"; x.classList.add("ok"); } else if (x === b) { x.dataset.s = "no"; x.classList.add("no"); }
         });
         GB.pairAnswer(p.id, ok);
         if (window.ZZ) { if (ok) ZZ.ok(b); else ZZ.no(b); }
@@ -416,7 +416,7 @@
   /* ── 개념 — 오늘 쟁점마다 문제 앞에 한 장(1013 대표님 「공부한 것 없이 OX 부터」).
        ① 요점 정리(data/notes, 있는 과목만) ② 시험에 맞는 문장으로 나온 기출(오늘 풀 문장은 뺀다)
        ③ 시험이 바꿔 낸 곳(같은 쟁점 맞는 문장·틀린 문장, 다른 낱말 색칠) */
-  var LC = ["#2563EB", "#10B981", "#8B5CF6", "#F97316", "#EC4899", "#06B6D4"];
+  var LC = ["var(--cta)", "var(--cta-2)", "var(--cta)", "var(--cta-2)", "var(--cta)", "var(--cta-2)"];
   function showLearn(s, 따로) {
     var nd = GB.node(s.n);
     if (!nd) { next(); return; }
@@ -439,7 +439,7 @@
       dsc.onload = dsc.onerror = function () { showLearn(s, 따로); }; document.head.appendChild(dsc); return;
     }
     var 도식 = window.DOSIK && DOSIK[dkey] && DOSIK[dkey][String(s.n)];
-    var h = '<div class="lrn" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "개념") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
+    var h = '<div class="lrn lrnconcept" style="--lc:' + lc + '"><div class="top"><span class="tag">' + (따로 ? "요점" : "개념") + "</span>" + (따로 ? "" : '<span class="step">쟁점 ' + 몇째 + " / " + 전체 + "</span>") + "</div>" +
       "<h2>" + esc(nd.name) + "</h2><div class=\"meta\">기출 선지 " + nd.q + "개" + (nd.bq ? " · 교재 O·X " + nd.bq + "개" : "") + (따로 ? "" : " · 읽고 나면 이 쟁점 문제 " + 문제수 + "개") + "</div>";
     if (note && note.pts && note.pts.length) {
       h += (도식 ? "<h3>요점</h3><div class=\"yodo\">" + 도식.map(DIAGRAM.html).join("") + "</div><details class=\"yodo-src\"><summary>요점 원문</summary>" : "") + (도식 ? "" : "<h3>요점</h3>") + "<div class=\"pts\">" + note.pts.map(function (p, k) {
@@ -455,7 +455,7 @@
     var ps = GB.pairs(s.n).filter(function (p) { return !오늘[p.o.i] && !오늘[p.x.i] && !오늘[p.id]; }).slice(0, 3);
     if (ps.length) h += "<h3>시험이 바꿔 낸 곳</h3>" + ps.map(function (p) {
       var d = GB.markDiff(p.o.t, p.x.t);
-      return '<div class="swap"><p><b style="color:var(--ok)">맞음</b> ' + d[0] + '</p><p><b style="color:var(--no)">틀림</b> ' + d[1] +
+      return '<div class="swap"><p><b class="ok" style="color:var(--ok)">맞음</b> ' + d[0] + '</p><p><b class="no" style="color:var(--no)">틀림</b> ' + d[1] +
         "</p><small>" + esc((p.x.y || "") + " " + (p.x.e || "")) + "</small></div>";
     }).join("");
     if (따로 === "back") h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">시작</button></div></div>';
@@ -489,7 +489,7 @@
       $("oxb").querySelectorAll("button").forEach(function (b) {
         b.onclick = function () {
           var good = b.dataset.a === q.ox; n++; if (good) ok++;
-          b.dataset.s = good ? "ok" : "no";
+          b.dataset.s = good ? "ok" : "no"; b.classList.add(good ? "ok" : "no");
           if (window.ZZ) { if (good) ZZ.ok(b); else ZZ.no(b); }
           GB.answer(q.i, good, { ms: Date.now() - t0 });
           setTimeout(one, good ? 250 : 900);
@@ -524,14 +524,15 @@
     var mis = results.filter(function (r) { return r && r.kind === "오개념"; }).length;
     var tomorrow = GB.dueList().length;
     $("prog").innerHTML = ""; $("cnt").textContent = "";
+    var tb = document.getElementById("tqbar"); if (tb) tb.hidden = true; document.body.classList.remove("tq-on");
     var todayDone = mode === "today"; cheerEnd(ok, n);
     $("stage").innerHTML = '<div class="done">' +
       (n ? '<div class="big num">' + ok + " / " + n + "</div>" : '<div class="big">끝</div>') +
       '<p class="muted">' + (todayDone ? "오늘 분량 완료." : "이번 묶음을 다 풀었어요.") + "</p>" +
-      '<div class="grid3" style="grid-template-columns:repeat(2,1fr)"><div><b class="num">' + ok + "</b><span>맞힘</span></div><div><b class=\"num\" style=\"color:var(--warn)\">" + mis +
+      '<div class="grid3" style="grid-template-columns:repeat(2,1fr)"><div><b class="num">' + ok + "</b><span>맞힘</span></div><div><b class=\"num\">" + mis +
       '</b><span>확신했는데 틀림</span></div></div>' +
       '<div class="acts" style="margin-top:22px"><a class="btn ghost" href="index.html">오늘</a>' +
-      (mis ? '<a class="btn" href="ox.html?mode=hard">어려운 O·X</a>' : '<a class="btn" href="ox.html?mode=wrong">틀린 것 다시</a>') + "</div></div>";
+      (mis ? '<a class="btn" href="ox.html?mode=hard">어려운 O·X</a>' : '<a class="btn" href="ox.html?mode=wrong">복습</a>') + "</div></div>";
   }
 
   /* 키보드 — 1·2·3 확신도, O·X, Enter 다음 */
