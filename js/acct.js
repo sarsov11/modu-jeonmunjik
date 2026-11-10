@@ -7,6 +7,12 @@
 (function () {
   "use strict";
   var D = window.ACCT, SECS = D.SECS, KEY = "mp.acct.v1";
+  /* 분개 드릴의 extra 계정(매입 · 사채상환손실 등)도 자리 · 차대 드릴에 섞는다. 번호는 맨 뒤에 이어 붙여 기존 기록이 어긋나지 않는다 */
+  (window.JDRILL && JDRILL.extra || []).forEach(function (x) {
+    if (D.BY[x.n]) return;
+    var o = { id: D.ACCTS.length, n: x.n, sec: x.sec, g: SECS[x.sec[0]].g, side: x.side, tip: x.tip, contra: x.contra || "" };
+    D.ACCTS.push(o); D.BY[x.n] = o;
+  });
   if (window.GB) GB.mountNav("acct.html");
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -266,7 +272,7 @@
     var used = Object.keys(ans).concat(j.x), extra = shuffle(D.ACCTS.filter(function (a) { return used.indexOf(a.n) < 0 && a.g !== "임시"; })).slice(0, 2).map(function (a) { return a.n; });
     var pool = shuffle(used.concat(extra));
     function draw() {
-      var h = meta("거래를 읽고 계정을 차변·대변에 놓는다") + '<div class="q txt"><div class="nm">' + esc(j.q) + "</div></div>" +
+      var h = '<a class="row" href="journal.html" style="margin-top:12px"><span class="t"><b>계정별 분개 드릴</b></span><span class="go">›</span></a>' + meta("거래를 읽고 계정을 차변·대변에 놓는다") + '<div class="q txt"><div class="nm">' + esc(j.q) + "</div></div>" +
         '<div class="legend"><span><i style="background:var(--ink)"></i>한 번 누르면 차변</span><span><i style="background:var(--cta)"></i>두 번 누르면 대변</span></div>' +
         '<div class="pool">' + pool.map(function (n) {
           var miss = done && (st[n] || "") !== (ans[n] || "");

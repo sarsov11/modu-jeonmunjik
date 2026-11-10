@@ -7,7 +7,7 @@
    ═══════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
-  var J = window.JDRILL, A = window.ACCT, KEY = "mp.jdrill.v1";
+  var J = window.JDRILL, R = window.JREC, A = window.ACCT, KEY = "mp.jdrill.v1";
   if (window.GB) GB.mountNav("drill.html");
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -16,9 +16,23 @@
   var BY = {};
   A.ACCTS.forEach(function (a) { BY[a.n] = a; });
   J.extra.forEach(function (a) { BY[a.n] = a; });
-  var UNIT = {}; J.units.forEach(function (u) { UNIT[u.id] = u; });
-  var ITEM = {}; J.items.forEach(function (it) { ITEM[it.id] = it; });
-  function itemsOf(u, a) { return J.items.filter(function (it) { return it.u === u && it.a === a; }); }
+  /* 단원 이름 · 계정 · 거래 id 는 색인(JREC)에서, 거래 본문은 단원 파일(js/jd/<id>.js)을 그때 불러와 쓴다 */
+  var UNIT = {}; R.units.forEach(function (u) { UNIT[u.id] = { id: u.id, name: u.name, accts: u.accts.map(function (a) { return a.n; }), rec: u }; });
+  var ITEM = {};
+  function reindex() { J.items.forEach(function (it) { ITEM[it.id] = it; }); }
+  function idsOf(u, a) { return UNIT[u].rec.accts.filter(function (x) { return x.n === a; })[0].ids; }
+  function itemsOf(u, a) { return idsOf(u, a).map(function (id) { return ITEM[id]; }).filter(Boolean); }
+  var loaded = {};
+  function loadUnits(list, cb) {
+    var need = list.filter(function (u) { return !loaded[u]; });
+    if (!need.length) { cb(); return; }
+    var left = need.length;
+    need.forEach(function (u) {
+      var sc = document.createElement("script"); sc.src = "js/jd/" + u + ".js?v=1110q";
+      sc.onload = sc.onerror = function () { loaded[u] = 1; if (--left === 0) { reindex(); cb(); } };
+      document.head.appendChild(sc);
+    });
+  }
 
   /* ── 기록 ── */
   var S;
@@ -27,11 +41,13 @@
   if (!S.b) S.b = {};
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function rec(id) { return S.b[id] || { b: 0, n: 0, w: 0 }; }
-  function mastered(u, a) { return itemsOf(u, a).every(function (it) { return rec(it.id).b >= 3; }); }
-  function doneN(u, a) { return itemsOf(u, a).filter(function (it) { return rec(it.id).b >= 3; }).length; }
+  function mastered(u, a) { return idsOf(u, a).every(function (id) { return rec(id).b >= 3; }); }
+  function doneN(u, a) { return idsOf(u, a).filter(function (id) { return rec(id).b >= 3; }).length; }
   function put(id, ok, unsure) {
     var r = rec(id); r.n++;
     if (ok) { if (!unsure) r.b = Math.min(5, r.b + 1); } else { r.b = 0; r.w++; }
+    /* 복습: 틀렸거나 헷갈림을 켜고 맞히면 들어가고, 헷갈림 없이 세 번 연달아 맞히면 빠진다 */
+    if (!ok || unsure) { r.rv = 1; r.c = 0; } else { r.c = (r.c || 0) + 1; if (r.c >= 3) r.rv = 0; }
     S.b[id] = r; save();
   }
 
@@ -71,16 +87,18 @@
     var rc = window.JREC && JREC.current ? JREC.current() : null;
     var recKey = rc && !rc.all ? rc.unit.id + "|" + rc.acct.n : null;
     if (!recKey) {   /* 회계 과목이 아니거나 이어진 기록이 없으면 첫 단원의 첫 안 익힌 계정 */
-      for (var i = 0; i < J.units.length && !recKey; i++) {
-        for (var j = 0; j < J.units[i].accts.length; j++) { var an = J.units[i].accts[j]; if (!mastered(J.units[i].id, an)) { recKey = J.units[i].id + "|" + an; break; } }
+      for (var i = 0; i < R.units.length && !recKey; i++) {
+        for (var j = 0; j < R.units[i].accts.length; j++) { var an = R.units[i].accts[j].n; if (!mastered(R.units[i].id, an)) { recKey = R.units[i].id + "|" + an; break; } }
       }
     }
     var h = '<div class="jd-cards">';
-    J.units.forEach(function (u) {
-      var total = J.items.filter(function (it) { return it.u === u.id; }).length;
+    var rvn = R.reviewCount();
+    if (rvn) h += '<section class="jd-card"><h2>복습<small>' + rvn + '거래</small></h2><div class="jd-rows"><button type="button" class="jd-row" data-review="1"><span class="nm">분개 복습<span class="tag">분개</span></span><span class="bar"></span><span class="n">시작</span></button></div></section>';
+    R.units.forEach(function (u) {
+      var total = u.accts.reduce(function (n, a) { return n + a.ids.length; }, 0);
       h += '<section class="jd-card"><h2>' + esc(u.name) + "<small>" + total + "거래</small></h2><div class=\"jd-rows\">";
-      u.accts.forEach(function (a) {
-        var m = itemsOf(u.id, a).length, d = doneN(u.id, a), full = d === m;
+      u.accts.map(function (a) { return a.n; }).forEach(function (a) {
+        var m = idsOf(u.id, a).length, d = doneN(u.id, a), full = d === m;
         h += '<button type="button" class="jd-row' + (full ? " full" : "") + '" data-u="' + u.id + '" data-a="' + esc(a) + '">' +
           '<span class="nm">' + esc(a) + (recKey === u.id + "|" + a ? '<em class="recpill">추천</em>' : "") + "</span>" +
           '<span class="bar"><i style="width:' + Math.round(d / m * 100) + '%"></i></span><span class="n">' + (full ? "익힘" : d + " / " + m) + "</span></button>";
@@ -89,13 +107,25 @@
     });
     h += "</div>";
     $("main").innerHTML = h;
-    Array.prototype.forEach.call($("main").querySelectorAll(".jd-row"), function (b) { b.onclick = function () { start(b.dataset.u, b.dataset.a); }; });
+    Array.prototype.forEach.call($("main").querySelectorAll(".jd-row"), function (b) { b.onclick = function () { if (b.dataset.review) startReview(); else start(b.dataset.u, b.dataset.a); }; });
     history.replaceState(null, "", "journal.html");
     window.scrollTo(0, 0);
   }
 
   /* ── 세션 ── */
-  function start(u, a) {
+  function start(u, a) { loadUnits([u], function () { start2(u, a); }); }
+  function startReview() {
+    var ids = R.review().slice(0, 10), us = [];
+    ids.forEach(function (id) { var u = id.split("-")[0]; if (us.indexOf(u) < 0) us.push(u); });
+    loadUnits(us, function () {
+      var items = shuffle(ids.map(function (id) { return ITEM[id]; }).filter(Boolean));
+      if (!items.length) { listView(); return; }
+      cur = { u: "", a: "분개 복습", items: items, i: 0, ok: 0, res: [], review: true };
+      try { history.replaceState(null, "", "journal.html?review=1"); } catch (e) {}
+      openItem();
+    });
+  }
+  function start2(u, a) {
     var items = itemsOf(u, a);
     items = shuffle(items).sort(function (x, y) {
       var rx = rec(x.id), ry = rec(y.id), mx = rx.b >= 3 ? 1 : 0, my = ry.b >= 3 ? 1 : 0;
@@ -264,10 +294,14 @@
   function endView() {
     showBar(false); setFocus(true);
     setHd('<a class="bk" href="journal.html" title="목록" aria-label="목록">‹</a><h1>' + esc(cur.a) + '</h1><span class="cnt"></span><a class="x" href="drill.html" title="그만하기">✕</a>');
+    if (cur.review) {
+      $("main").innerHTML = '<div class="jd-end"><div class="big">' + cur.ok + " / " + cur.items.length + '</div><div class="sm">분개 복습 · 남은 ' + R.reviewCount() + '거래</div><div class="acts"><a class="btn block" href="drill.html">드릴</a><button type="button" class="btn ghost block" id="jList">목록</button></div></div>';
+      $("jList").onclick = listView; window.scrollTo(0, 0); return;
+    }
     var m = mastered(cur.u, cur.a), nextA = null, nu = null;
-    var order = J.units.slice().sort(function (a, b) { return (a.id === cur.u ? 0 : 1) - (b.id === cur.u ? 0 : 1); });
-    for (var i = 0; i < order.length && !nextA; i++) { for (var j = 0; j < order[i].accts.length; j++) { var an = order[i].accts[j]; if (an !== cur.a && !mastered(order[i].id, an)) { nextA = an; nu = order[i].id; break; } } }
-    $("main").innerHTML = '<div class="jd-end"><div class="big">' + cur.ok + " / " + cur.items.length + '</div><div class="sm">' + esc(cur.a) + (m ? " · 익힘" : " · " + doneN(cur.u, cur.a) + " / " + itemsOf(cur.u, cur.a).length) + "</div>" +
+    var order = R.units.slice().sort(function (a, b) { return (a.id === cur.u ? 0 : 1) - (b.id === cur.u ? 0 : 1); });
+    for (var i = 0; i < order.length && !nextA; i++) { for (var j = 0; j < order[i].accts.length; j++) { var an = order[i].accts[j].n; if (an !== cur.a && !mastered(order[i].id, an)) { nextA = an; nu = order[i].id; break; } } }
+    $("main").innerHTML = '<div class="jd-end"><div class="big">' + cur.ok + " / " + cur.items.length + '</div><div class="sm">' + esc(cur.a) + (m ? " · 익힘" : " · " + doneN(cur.u, cur.a) + " / " + idsOf(cur.u, cur.a).length) + "</div>" +
       '<div class="acts">' + (nextA ? '<button type="button" class="btn block" id="jMore">다음 · ' + esc(nextA) + "</button>" : '<a class="btn block" href="drill.html">드릴</a>') +
       '<button type="button" class="btn ghost block" id="jList">목록</button></div></div>';
     if ($("jMore")) $("jMore").onclick = function () { start(nu, nextA); };
@@ -289,7 +323,8 @@
 
   /* ── 들어가기: ?u=단원 [&a=계정] ── */
   var qp = new URLSearchParams(location.search), qu = qp.get("u"), qa = qp.get("a");
-  if (qu && UNIT[qu]) {
+  if (qp.get("review")) { if (R.reviewCount()) startReview(); else listView(); }
+  else if (qu && UNIT[qu]) {
     if (!qa || UNIT[qu].accts.indexOf(qa) < 0) {
       var na = null; UNIT[qu].accts.forEach(function (an) { if (!na && !mastered(qu, an)) na = an; });
       qa = na || UNIT[qu].accts[0];

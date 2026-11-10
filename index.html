@@ -132,12 +132,12 @@
       '<details style="margin-top:10px"><summary>' + (m + 1) + "월 출석</summary>" + '<div class="cal">' + 월 + "</div></details>";
   })();
 
-  var wrong = GB.wrongList().length;
+  var wrong = GB.wrongList().length + (window.JREC ? JREC.reviewCount() : 0);
   /* 분개 드릴 — 회계 과목이면 목록 맨 위 줄 + 추천(오늘 목록의 추천 1번 자리) */
   var jdRow = "";
   try {
     var jc = window.JREC && JREC.on() ? JREC.current() : null;
-    if (jc) jdRow = '<a class="row" href="' + JREC.href(jc.unit, jc.acct) + '"><span class="t"><b>분개 드릴 · ' + esc(jc.acct.n) + " " + jc.acct.ids.length + '거래<em class="recpill">추천</em></b></span><span class="go">›</span></a>';
+    if (jc) jdRow = '<a class="row" href="' + JREC.href(jc.unit, jc.acct) + '"><span class="t"><b>분개 드릴 · ' + esc(jc.acct.n) + " " + jc.acct.ids.length + '거래<em class="recpill">추천</em></b><span style="font-size:13px">계정을 배웠으면 분개부터 하세요</span></span><span class="go">›</span></a>';
   } catch (e) {}
   $("alt").innerHTML = jdRow +
     '<a class="row" href="#" id="zsrow"><span class="t"><b>합격 전략</b><span>합격선 · 과목별 목표 문항 · 필수·버림 기출</span></span><span class="go">›</span></a>' +

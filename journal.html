@@ -22,6 +22,7 @@
   .jd-row .bar{height:6px;border-radius:999px;background:var(--surface-3);overflow:hidden}
   .jd-row .bar i{display:block;height:100%;background:var(--pt);border-radius:999px}
   .jd-row .n{font-size:13px;font-weight:600;color:var(--ink-4);text-align:right;white-space:nowrap}
+  .jd-row .tag{display:inline-flex;align-items:center;height:22px;margin-left:8px;padding:0 9px;border-radius:999px;background:var(--pt-soft);color:var(--pt-ink);font-size:11.5px;font-weight:800;vertical-align:middle}
   .jd-row.full .n{color:var(--pt-ink);font-weight:700}
   /* 풀이 화면 */
   .tq-bar[hidden]{display:none}
@@ -33,13 +34,13 @@
   .jd-past b.ok{color:var(--ok)} .jd-past b.no{color:var(--no)}
   .jd-side{margin-top:14px}
   .jd-side h3{margin:0 0 6px;font-size:14px;font-weight:700;color:var(--ink-3)}
-  .jd-line{display:grid;grid-template-columns:minmax(0,1fr) 150px 32px;gap:8px;margin-bottom:8px;align-items:center}
+  .jd-line{display:grid;grid-template-columns:minmax(0,1fr) 172px 28px;gap:6px;margin-bottom:8px;align-items:center}
   .jd-acc{appearance:none;min-height:48px;padding:6px 12px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;text-align:left;font:600 14px/1.25 var(--font);color:var(--ink-4);cursor:pointer;word-break:keep-all}
   .jd-acc.has{color:var(--ink);font-weight:700}
   .jd-line.on .jd-acc{border-color:var(--pt);background:var(--pt-soft)}
-  .jd-amt{width:100%;min-width:0;height:48px;padding:0 10px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;text-align:right;font:700 16px var(--font);color:var(--ink);font-variant-numeric:tabular-nums}
+  .jd-amt{width:100%;min-width:0;height:48px;padding:0 8px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;text-align:right;font:700 16px var(--font);color:var(--ink);font-variant-numeric:tabular-nums}
   .jd-amt:focus{outline:none;border-color:var(--pt)}
-  .jd-x{appearance:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line-2);background:#fff;color:var(--ink-4);font-size:14px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+  .jd-x{appearance:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--line-2);background:#fff;color:var(--ink-4);font-size:14px;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
   .jd-x[hidden]{visibility:hidden;display:grid}
   .jd-line.ok .jd-acc,.jd-line.ok .jd-amt{border-color:var(--ok);background:var(--ok-soft)}
   .jd-line.no .jd-acc,.jd-line.no .jd-amt{border-color:var(--no);background:var(--no-soft)}
@@ -85,9 +86,9 @@
 <script src="data/ready.js"></script>
 <script src="js/boot.js"></script>
 <script src="js/store.js"></script>
-<script src="js/tera-pad.js?v=1110p"></script>
+<script src="js/tera-pad.js?v=1110q"></script>
 <script src="js/acct-data.js"></script>
-<script src="js/journal-data.js"></script>
+<script src="js/jd/base.js?v=1110q"></script>
 <script src="js/journal-rec.js"></script>
 <script src="js/journal.js"></script>
 <script src="js/zzsfx.js?v=1009a" defer></script><script src="js/zzajan.js?v=1009a" defer></script>

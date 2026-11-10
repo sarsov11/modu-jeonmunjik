@@ -561,6 +561,12 @@
     else if (k === "enter") { var n = $("nx"); if (n) { e.preventDefault(); n.click(); } }
   });
 
+  if (mode === "wrong" && window.JREC && JREC.reviewCount() && !/[?&]nojd/.test(location.search)) {   /* 분개 복습: 「분개」 딱지 카드에서 그 거래 풀이로 */
+    $("prog").innerHTML = ""; $("cnt").textContent = "";
+    $("stage").innerHTML = '<div class="done"><div class="big num">' + JREC.reviewCount() + '</div><p class="muted">분개 복습 <span class="chip cta">분개</span></p><div class="acts" style="margin-top:22px;flex-wrap:wrap"><a class="btn" style="flex:1 1 100%" href="journal.html?review=1">시작</a>' +
+      (seq.length ? '<a class="btn ghost" style="flex:1 1 100%" href="ox.html?mode=wrong&nojd=1">문장 복습 ' + seq.length + '개</a>' : '') + '</div></div>';
+    return;
+  }
   if (mode === "read") { showRead(nodeNo, false); $("ttl").textContent = "쟁점 요점"; return; }
   if (mode === "speed") { runSpeed(); return; }
   if (!seq.length) {
