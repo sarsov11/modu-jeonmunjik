@@ -290,7 +290,12 @@
       '<p class="hint" id="hint">확실한지 먼저 골라요</p>' +
       '<div id="after"></div>';
     padHook(q, mc);
-    setTimeout(function () { tqDress(q, mc); }, 0);
+    /* 1110 아래 줄 수정: #tqbar 는 문서 끝에 있다 — 읽기가 끝난 뒤, 그래도 없으면 50ms 간격 20번까지 다시 */
+    setTimeout(function () { (function tqGo(n) {
+      if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", function () { tqGo(0); }, { once: true }); return; }
+      if (!document.getElementById("tqbar") && n < 20) { setTimeout(function () { tqGo(n + 1); }, 50); return; }
+      tqDress(q, mc);
+    })(0); }, 0);
     var cb = $("conf").querySelectorAll("button");
     cb.forEach(function (b) {
       b.onclick = function () {
