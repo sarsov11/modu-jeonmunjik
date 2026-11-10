@@ -48,8 +48,9 @@
   <div id="stage"></div>
 </div>
 
-<script src="js/tera-pad.js?v=1110n"></script>
-<script src="js/tera-q.js?v=1110n"></script>
+<script src="js/tera-pad.js?v=1110p"></script>
+<script src="js/tera-q.js?v=1110p"></script>
+<script src="js/journal-rec.js?v=1110p"></script>
 <script src="js/catalog.js"></script>
 <script src="data/ready.js"></script>
 <script src="js/boot.js"></script>
@@ -417,6 +418,17 @@
        ① 요점 정리(data/notes, 있는 과목만) ② 시험에 맞는 문장으로 나온 기출(오늘 풀 문장은 뺀다)
        ③ 시험이 바꿔 낸 곳(같은 쟁점 맞는 문장·틀린 문장, 다른 낱말 색칠) */
   var LC = ["var(--cta)", "var(--cta-2)", "var(--cta)", "var(--cta-2)", "var(--cta)", "var(--cta-2)"];
+  /* 분개 드릴로 가는 주 단추 — 이 쟁점에 이어진 분개 단원이 있을 때만 */
+  function jdLink(nos) {
+    try {
+      var R = window.JREC; if (!R || !R.on()) return null;
+      nos = [].concat(nos); var us = [];
+      nos.forEach(function (no) { R.unitsFor(no).forEach(function (u) { if (us.indexOf(u) < 0) us.push(u); }); });
+      if (!us.length) return null;
+      var u = us[0], a = R.nextAcct(u) || u.accts[0];
+      return { a: '<a class="btn" href="' + R.href(u, a) + '">분개 드릴 ' + R.count(u) + "거래</a>" };
+    } catch (e) { return null; }
+  }
   function showLearn(s, 따로) {
     var nd = GB.node(s.n);
     if (!nd) { next(); return; }
@@ -430,6 +442,8 @@
     });
     if (!따로) for (var i = pos + 1; i < seq.length && seq[i].k !== "learn"; i++) if (seq[i].k !== "learn" && !seq[i].re) 문제수++;
     var lc = LC[(몇째 - 1 + LC.length) % LC.length];
+    var JD = jdLink(s.n);   /* 회계 과목이면 주 단추 자리에 「분개 드릴 N거래」, 기존 단추는 테두리 단추로 */
+    if (window.JREC && JREC.on()) JREC.markRead(s.n);
     var note = (window.NOTES || {})[String(s.n)];
     /* 도식(2026-10-26 대표님 「모든 과목 개념을 도식으로」) — data/dosik/<과목>.js 가 있으면 요점 대신 도식, 요점 원문은 접는다 */
     var dkey = (window.TREE && TREE.key) || "";
@@ -459,8 +473,8 @@
         "</p><small>" + esc((p.x.y || "") + " " + (p.x.e || "")) + "</small></div>";
     }).join("");
     if (따로 === "back") h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">시작</button></div></div>';
-    else if (따로) h += '<div class="acts" style="margin-top:20px"><a class="btn" style="background:' + lc + '" href="ox.html?node=' + s.n + '">이 쟁점 문제 풀기</a></div></div>';
-    else h += '<div class="acts" style="margin-top:20px"><button class="btn" id="nx" style="background:' + lc + '">다 읽었음 · 문제 ' + 문제수 + "개</button></div></div>";
+    else if (따로) h += '<div class="acts" style="margin-top:20px">' + (JD ? JD.a : "") + '<a class="btn' + (JD ? " ghost" : "") + '"' + (JD ? "" : ' style="background:' + lc + '"') + ' href="ox.html?node=' + s.n + '">이 쟁점 문제 풀기</a></div></div>';
+    else h += '<div class="acts" style="margin-top:20px">' + (JD ? JD.a : "") + '<button class="btn' + (JD ? " ghost" : "") + '" id="nx"' + (JD ? "" : ' style="background:' + lc + '"') + '>다 읽었음 · 문제 ' + 문제수 + "개</button></div></div>";
     $("stage").innerHTML = h;
     window.scrollTo(0, 0);
     if (따로 === "back") { $("nx").onclick = next; return; }
@@ -526,13 +540,15 @@
     $("prog").innerHTML = ""; $("cnt").textContent = "";
     var tb = document.getElementById("tqbar"); if (tb) tb.hidden = true; document.body.classList.remove("tq-on");
     var todayDone = mode === "today"; cheerEnd(ok, n);
+    var nodesDone = []; seq.forEach(function (x) { if (x.k === "ox") { var q0 = GB.item(x.id); if (q0 && nodesDone.indexOf(q0.n) < 0) nodesDone.push(q0.n); } }); if (nodeNo && nodesDone.indexOf(nodeNo) < 0) nodesDone.push(nodeNo);
+    var JD = jdLink(nodesDone);
     $("stage").innerHTML = '<div class="done">' +
       (n ? '<div class="big num">' + ok + " / " + n + "</div>" : '<div class="big">끝</div>') +
       '<p class="muted">' + (todayDone ? "오늘 분량 완료." : "이번 묶음을 다 풀었어요.") + "</p>" +
       '<div class="grid3" style="grid-template-columns:repeat(2,1fr)"><div><b class="num">' + ok + "</b><span>맞힘</span></div><div><b class=\"num\">" + mis +
       '</b><span>확신했는데 틀림</span></div></div>' +
-      '<div class="acts" style="margin-top:22px"><a class="btn ghost" href="index.html">오늘</a>' +
-      (mis ? '<a class="btn" href="ox.html?mode=hard">어려운 O·X</a>' : '<a class="btn" href="ox.html?mode=wrong">복습</a>') + "</div></div>";
+      '<div class="acts" style="margin-top:22px;flex-wrap:wrap">' + (JD ? JD.a.replace('class="btn"', 'class="btn" style="flex:1 1 100%"') : "") + '<a class="btn ghost" href="index.html">오늘</a>' +
+      (mis ? '<a class="btn' + (JD ? " ghost" : "") + '" href="ox.html?mode=hard">어려운 O·X</a>' : '<a class="btn' + (JD ? " ghost" : "") + '" href="ox.html?mode=wrong">복습</a>') + "</div></div>";
   }
 
   /* 키보드 — 1·2·3 확신도, O·X, Enter 다음 */
