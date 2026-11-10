@@ -28,7 +28,7 @@
     if (!need.length) { cb(); return; }
     var left = need.length;
     need.forEach(function (u) {
-      var sc = document.createElement("script"); sc.src = "js/jd/" + u + ".js?v=1110s";
+      var sc = document.createElement("script"); sc.src = "js/jd/" + u + ".js?v=1110t";
       sc.onload = sc.onerror = function () { loaded[u] = 1; if (--left === 0) { reindex(); cb(); } };
       document.head.appendChild(sc);
     });
