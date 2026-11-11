@@ -316,6 +316,12 @@
       '<p class="hint">목차와 요소 이름만 짧게 적으세요. 조문 번호·요건·판례 결론·계산 결과처럼 채점자가 찾는 낱말이 들어가야 점수가 납니다.</p>') +
       '<textarea class="ans' + (full ? " long" : "") + '" id="ans" placeholder="' + (full ? "실제 답안처럼 쓰세요" : "Ⅰ. 쟁점\nⅡ. 관련 법리 …") + '"></textarea><div class="count" id="cnt"></div>' +
       '<div class="acts" style="display:flex;gap:8px;margin-top:10px"><button class="btn" type="button" id="go">' + (has ? "채점" : "다 썼음 · 기출 확인") + "</button></div><div id=\"res\"></div>";
+    try {   /* 분개 · T계정 판(1111) — 회계 과목 서술형에만 */
+      if (window.TERA_LEDGER && /재무회계|원가회계|회계학/.test(String(it.s || ""))) {
+        var lr = document.createElement("div"); lr.style.cssText = "margin:0 0 8px"; document.getElementById("ans").parentNode.insertBefore(lr, document.getElementById("ans"));
+        TERA_LEDGER.button(lr, function () { return { key: "e" + it.id, text: String(qOf(it).t || "") }; });
+      }
+    } catch (e) {}
     var ta = document.getElementById("ans"), cnt = document.getElementById("cnt");
     ta.value = R.draft[dk] || "";
     function upd() { cnt.textContent = ta.value.replace(/\s/g, "").length.toLocaleString() + "자"; R.draft[dk] = ta.value; }
