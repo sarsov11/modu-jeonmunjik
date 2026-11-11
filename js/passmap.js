@@ -108,7 +108,8 @@
     bm_1: 50, bm_2: 50, bm_3: 50, bm_4: 50, gs_law: 40, gs_tax: 40, gs_eng: 40, gs_acct: 40,
     nm_labor1: 40, nm_labor2: 40, nm_civil: 40, nm_social: 40, nm_biz: 40, nm_econ: 40,
     sm_fin: 40, sm_tax: 40, sm_acct: 40, sm_comm: 40, sm_civil: 40, sm_admin: 40,
-    cp_comm: 38, cp_acct: 57, cp_biz: 30.5, cp_tax: 38, cp_econ: 30.5
+    cp_comm: 38, cp_acct: 57, cp_biz: 30.5, cp_tax: 38, cp_econ: 30.5,
+    gp_civil: 40, gp_econ: 40, gp_real: 40, gp_law: 40, gp_acct: 40, lw_pub: 40, lw_crim: 40, lw_civil: 70
   };
   function wOf(id) {
     try {

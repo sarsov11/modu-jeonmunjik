@@ -20,7 +20,10 @@
     pt_iplaw: { name: "산업재산권법" }, pt_civil: { name: "민법개론" }, pt_natsci: { name: "자연과학개론" },
     sm_fin: { name: "재정학" }, sm_tax: { name: "세법학개론" }, sm_acct: { name: "회계학개론" },
     sm_comm: { name: "상법(선택)" }, sm_civil: { name: "민법(선택)" }, sm_admin: { name: "행정소송법(선택)" },
-    cp_biz: { name: "경영학" }, cp_econ: { name: "경제원론" }, cp_comm: { name: "기업법(상법)" }, cp_tax: { name: "세법개론" }, cp_acct: { name: "회계학" }
+    cp_biz: { name: "경영학" }, cp_econ: { name: "경제원론" }, cp_comm: { name: "기업법(상법)" }, cp_tax: { name: "세법개론" }, cp_acct: { name: "회계학" },
+    gp_civil: { name: "민법" }, gp_econ: { name: "경제학원론" }, gp_real: { name: "부동산학원론" },
+    gp_law: { name: "감정평가관계법규" }, gp_acct: { name: "회계학" },
+    lw_pub: { name: "공법" }, lw_crim: { name: "형사법" }, lw_civil: { name: "민사법" }
   };
 
   /* 시험일은 2027년 공고 전 — 전부 예상(설정에서 바꿀 수 있다) */
@@ -39,7 +42,9 @@
         { id: "civil", name: "민법 선택", subs: ["sm_fin", "sm_tax", "sm_acct", "sm_civil"] },
         { id: "admin", name: "행정소송법 선택", subs: ["sm_fin", "sm_tax", "sm_acct", "sm_admin"] }
       ] },
-    { id: "cpa", name: "공인회계사", sub: "1차", date: "2027-02-28", pass: "rel", subs: ["cp_biz", "cp_econ", "cp_comm", "cp_tax", "cp_acct"] }
+    { id: "cpa", name: "공인회계사", sub: "1차", date: "2027-02-28", pass: "rel", subs: ["cp_biz", "cp_econ", "cp_comm", "cp_tax", "cp_acct"] },
+    { id: "gampyeong", name: "감정평가사", sub: "1차", date: "2027-04-03", pass: "abs", subs: ["gp_civil", "gp_econ", "gp_real", "gp_law", "gp_acct"] },
+    { id: "lawyer", name: "변호사시험", sub: "선택형", date: "2027-01-06", pass: "rel", subs: ["lw_pub", "lw_crim", "lw_civil"] }
   ];
 
   function exam(id) { return EXAMS.filter(function (e) { return e.id === id; })[0] || null; }
