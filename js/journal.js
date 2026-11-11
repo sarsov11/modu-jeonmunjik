@@ -7,12 +7,13 @@
    ═══════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
-  var J = window.JDRILL, R = window.JREC, A = window.ACCT, KEY = "mp.jdrill.v1";
+  var J = window.JDRILL, R = window.JREC, A = window.ACCT, KEY = (window.JREC && JREC.KEY) || "mp.jdrill.v1";
   if (window.GB) GB.mountNav("drill.html");
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function won(n) { return Number(n).toLocaleString("ko-KR"); }
 
+  function UL() { return R.visible ? R.visible() : R.units; }   /* 이 과목에서 보이는 단원 */
   var BY = {};
   A.ACCTS.forEach(function (a) { BY[a.n] = a; });
   J.extra.forEach(function (a) { BY[a.n] = a; });
@@ -87,14 +88,14 @@
     var rc = window.JREC && JREC.current ? JREC.current() : null;
     var recKey = rc && !rc.all ? rc.unit.id + "|" + rc.acct.n : null;
     if (!recKey) {   /* 회계 과목이 아니거나 이어진 기록이 없으면 첫 단원의 첫 안 익힌 계정 */
-      for (var i = 0; i < R.units.length && !recKey; i++) {
-        for (var j = 0; j < R.units[i].accts.length; j++) { var an = R.units[i].accts[j].n; if (!mastered(R.units[i].id, an)) { recKey = R.units[i].id + "|" + an; break; } }
+      for (var i = 0; i < UL().length && !recKey; i++) {
+        for (var j = 0; j < UL()[i].accts.length; j++) { var an = UL()[i].accts[j].n; if (!mastered(UL()[i].id, an)) { recKey = UL()[i].id + "|" + an; break; } }
       }
     }
     var h = '<div class="jd-cards">';
     var rvn = R.reviewCount();
     if (rvn) h += '<section class="jd-card"><h2>복습<small>' + rvn + '거래</small></h2><div class="jd-rows"><button type="button" class="jd-row" data-review="1"><span class="nm">분개 복습<span class="tag">분개</span></span><span class="bar"></span><span class="n">시작</span></button></div></section>';
-    R.units.forEach(function (u) {
+    UL().forEach(function (u) {
       var total = u.accts.reduce(function (n, a) { return n + a.ids.length; }, 0);
       h += '<section class="jd-card"><h2>' + esc(u.name) + "<small>" + total + "거래</small></h2><div class=\"jd-rows\">";
       u.accts.map(function (a) { return a.n; }).forEach(function (a) {
@@ -299,7 +300,7 @@
       $("jList").onclick = listView; window.scrollTo(0, 0); return;
     }
     var m = mastered(cur.u, cur.a), nextA = null, nu = null;
-    var order = R.units.slice().sort(function (a, b) { return (a.id === cur.u ? 0 : 1) - (b.id === cur.u ? 0 : 1); });
+    var order = UL().slice().sort(function (a, b) { return (a.id === cur.u ? 0 : 1) - (b.id === cur.u ? 0 : 1); });
     for (var i = 0; i < order.length && !nextA; i++) { for (var j = 0; j < order[i].accts.length; j++) { var an = order[i].accts[j].n; if (an !== cur.a && !mastered(order[i].id, an)) { nextA = an; nu = order[i].id; break; } } }
     $("main").innerHTML = '<div class="jd-end"><div class="big">' + cur.ok + " / " + cur.items.length + '</div><div class="sm">' + esc(cur.a) + (m ? " · 익힘" : " · " + doneN(cur.u, cur.a) + " / " + idsOf(cur.u, cur.a).length) + "</div>" +
       '<div class="acts">' + (nextA ? '<button type="button" class="btn block" id="jMore">다음 · ' + esc(nextA) + "</button>" : '<a class="btn block" href="drill.html">드릴</a>') +
