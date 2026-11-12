@@ -26,5 +26,5 @@
   /* 틀린 문장 해설(data/expl/<id>.js → window.EXPL: 문장 id → {f 바른 문장, w 이유}) */
   if (cur && EXPLED[cur]) document.write('<script src="data/expl/' + cur + '.js?v=' + EXPLED[cur] + '"><\/script>');
   /* 개념어(1110) — 문제 화면(tera-q 가 실린 화면)만. 파일이 없는 과목은 조용히 넘어간다(onerror) */
-  if (cur && window.TERA_Q) document.write('<script src="data/terms/' + cur + '.js?v=1111h" onerror="void 0"><\/script><script>try{(window.TNQ||[]).forEach(function(x){if(x&&x.terms)TERA_Q.terms(x.terms)})}catch(e){}<\/script>');
+  if (cur && window.TERA_Q) document.write('<script src="data/terms/' + cur + '.js?v=1112b" onerror="void 0"><\/script><script>try{(window.TNQ||[]).forEach(function(x){if(x&&x.terms)TERA_Q.terms(x.terms)})}catch(e){}<\/script>');
 })();
