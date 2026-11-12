@@ -271,7 +271,7 @@
     /* 1108: definitions on the page are no longer turned into popups (they produced obvious words) */
     blocks.forEach(function(b){ if(b.getAttribute("data-tnv")===String(ver)||inPanel(b)||b.classList.contains("sc")) return;
       b.setAttribute("data-tnv",String(ver)); annotate(b); mark(b); });
-    if(!triedFile&&!Object.keys(notes).length){ triedFile=true; var s=document.createElement("script"); s.src=window.TN_NOTES_URL||"notes.js"; s.async=true; s.onerror=function(){ s.remove(); }; document.head.appendChild(s); } }
+    if(!triedFile&&!Object.keys(notes).length&&window.TN_NOTES_URL!==false){ triedFile=true; var s=document.createElement("script"); s.src=window.TN_NOTES_URL||"notes.js"; s.async=true; s.onerror=function(){ s.remove(); }; document.head.appendChild(s); } }
   var sch=0; function schedule(){ if(sch) return; sch=(window.requestAnimationFrame||setTimeout)(scan); }
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
 

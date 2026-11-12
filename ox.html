@@ -8,7 +8,7 @@
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <script>try{document.documentElement.dataset.skin=localStorage.getItem("mp.skin")||"white"}catch(e){document.documentElement.dataset.skin="white"}</script>
-<link rel="stylesheet" href="css/app.css?v=1112c">
+<link rel="stylesheet" href="css/app.css?v=1112k">
 <link rel="stylesheet" href="css/diagram.css?v=1111h">
 <style>
   .hd{display:flex;align-items:center;gap:10px;padding:18px 0 0}
@@ -31,7 +31,7 @@
   .lrn h3:before{content:"";width:6px;height:16px;border-radius:12px;background:var(--lc,var(--cta))}
   .pts{display:grid;gap:10px}
   .pt{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--pc);border-radius:var(--r2);padding:13px 15px}
-  .pt b{display:block;font-size:16px;font-weight:800;color:var(--pc);letter-spacing:-.03em;margin-bottom:3px}
+  .pt b{display:block;font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.03em;margin-bottom:3px}
   .pt p{margin:0;font-size:16px;line-height:1.72;color:var(--ink)}
   .pt em{font-style:normal;font-weight:800;background:color-mix(in srgb,var(--pc) 16%,transparent);border-radius:12px;padding:0 3px}
   .swap{display:grid;gap:6px;background:var(--surface-2);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px;font-size:14px;line-height:1.7}
@@ -49,15 +49,15 @@
 </div>
 
 <script src="js/tera-pad.js?v=1112b"></script>
-<script src="js/tera-ledger.js?v=1111h"></script>
+<script src="js/tera-ledger.js?v=1112k"></script>
 <script src="js/tera-q.js?v=1112c"></script>
 <script src="js/journal-rec.js?v=1111h"></script>
 <script src="js/catalog.js?v=1111h"></script>
 <script src="data/ready.js?v=1111h"></script>
-<script src="js/boot.js?v=1112b"></script>
+<script src="js/boot.js?v=1112k"></script>
 <script src="js/judge.js?v=1111h"></script>
 <script src="js/store.js?v=1111h"></script>
-<script src="js/diagram.js?v=1111h"></script>
+<script src="js/diagram.js?v=1112k"></script>
 <script src="js/rich.js?v=1111h"></script>
 <script>
 (function () {
@@ -464,7 +464,7 @@
     var note = (window.NOTES || {})[String(s.n)];
     /* 도식(2026-10-26 대표님 「모든 과목 개념을 도식으로」) — data/dosik/<과목>.js 가 있으면 요점 대신 도식, 요점 원문은 접는다 */
     var dkey = (window.TREE && TREE.key) || "";
-    if (dkey && window.DIAGRAM && !(window.DOSIK && DOSIK[dkey]) && !showLearn.불러봄) {
+    if (dkey && window.DIAGRAM && !(window.DOSIK && DOSIK[dkey]) && !showLearn.불러봄 && !(window.DOSIK_LIST && !DOSIK_LIST[dkey])) {
       showLearn.불러봄 = 1;
       var dsc = document.createElement("script"); dsc.src = "data/dosik/" + dkey + ".js";
       dsc.onload = dsc.onerror = function () { showLearn(s, 따로); }; document.head.appendChild(dsc); return;
